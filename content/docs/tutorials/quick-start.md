@@ -113,7 +113,7 @@ Successfully tagged cerc/watcher-erc20:local
 Next, let's deploy this stack:
 
 ```
-./laconic-so --stack erc20deploy-system up
+./laconic-so --stack erc20 deploy-system up
 ```
 
 The output will looks like this (ignore the warnings):
@@ -158,9 +158,9 @@ WARN[0000] The "eth_http_path" variable is not set. Defaulting to a blank string
 ```
 
 Let's take stock of what just happened, we:
-- cloned a bunch of repos: `laconic-so setup-repositories`
-- built all of their docker images: `laconic-so build-containers`
-- deployed these images as services that know about each other: `laconic-so deploy-system up`
+- cloned a bunch of repos: `laconic-so  --stack erc20 setup-repositories`
+- built all of their docker images: `laconic-so  --stack erc20 build-containers`
+- deployed these images as services that know about each other: `laconic-so  --stack erc20 deploy-system up`
 
 Take a look at all the running docker containers:
 
