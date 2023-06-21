@@ -1,5 +1,6 @@
-# Laconic-Documentation
+# Laconic Documentation
 
+**NOTICE:** This repository is out of date and not maintained. To use the Laconic Stack, see [Stack Orchestrator](https://github.com/cerc-io/stack-orchestrator)
 
 ## Local editing
 
