@@ -1,6 +1,6 @@
 ---
-title: "Laconic Documentation"
-description: "Documentation for the Laconic stack"
+title: "Introduction"
+description: "General Introduction to Laconic"
 ---
 
-TODO: quick summary of our available docs
+TODO: introduce Laconic from a high level
