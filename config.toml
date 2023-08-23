@@ -170,11 +170,11 @@ content = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam <br
 
 ############## English navigation ###############
 # main menu
-[[Languages.en.menu.main]]
-name = "Docs"
-url = "docs"
-weight = 1
-hasChildren = false
+#[[Languages.en.menu.main]]
+#name = "Docs"
+#url = "docs"
+#weight = 1
+#hasChildren = false
 
 #[[Languages.en.menu.main]]
 #name = "FAQ"
@@ -192,9 +192,9 @@ hasChildren = false
 #weight = 3
 
 [[Languages.en.menu.main]]
-name = "Laconic.com"
-url = "https://www.laconic.com/"
-weight = 2
+#name = "Laconic.com"
+#url = "https://www.laconic.com/"
+#weight = 2
 
 # footer menu
 
