@@ -1,7 +1,7 @@
 ---
 title: "ERC20 Watcher Demo"
 date: 2022-12-30T09:19:28-05:00
-draft: false
+draft: true
 weight: 1
 ---
 
@@ -24,7 +24,7 @@ This tutorial assumes you are on a local machine (Mac or Linux). Trying it in th
 - `docker-compose` [Install](https://docs.docker.com/compose/install/)
 - MetaMask [Install](https://metamask.io/download/) in the supported browser of your choice.
 
-If using a fresh Ubuntu Digital Ocean droplet, check out [this script](https://github.com/LaconicNetwork/Laconic-Documentation/blob/staging/scripts/install-laconic-stack.sh) for a quick setup.
+If using a fresh Ubuntu Digital Ocean droplet, check out [this script](https://github.com/cerc-io/stack-orchestrator/blob/main/scripts/quick-install-linux.sh) for a quick setup.
 
 **WARNING**: if installing docker-compose via package manager (as opposed to Docker Desktop), you must install the plugin, e.g., on Linux:
 
@@ -47,27 +47,11 @@ chmod +x laconic-so
 
 Verify operation:
 ```
-./laconic-so 
-Usage: python -m laconic-so [OPTIONS] COMMAND [ARGS]...
+./laconic-so version
+```
 
-  Laconic Stack Orchestrator
-
-Options:
-  --stack TEXT         specify a stack to build/deploy
-  --quiet
-  --verbose
-  --dry-run
-  --local-stack
-  --debug
-  --continue-on-error
-  -h, --help           Show this message and exit.
-
-Commands:
-  build-containers    build the set of containers required for a complete...
-  build-npms          build the set of npm packages required for a...
-  deploy-system       deploy a stack
-  setup-repositories  git clone the set of repositories required to build...
-  version             print tool version
+```
+Version: 1.1.0-f55a14b-202308221833
 ```
 
 For a more permanent setup, move the binary to `~/bin` and add it your `PATH`.
@@ -110,10 +94,12 @@ Successfully built 77c75d57ad66
 Successfully tagged cerc/watcher-erc20:local
 ```
 
+If you run into an error, it will likely be compiling foundry, which uses a lot of resources. Re-run the command and if it continues to fail, try a machine with better specs.
+
 Next, let's deploy this stack:
 
 ```
-./laconic-so --stack erc20 deploy-system up
+./laconic-so --stack erc20 deploy up
 ```
 
 The output will looks like this (ignore the warnings):
