@@ -130,15 +130,15 @@ title = "github"
 icon = "fab fa-github" # fontawesome icon : https://fontawesome.com/icons
 link = "https://github.com/orgs/LaconicNetwork/"
 
-[[params.social]]
-title = "facebook"
-icon = "fab fa-facebook" # fontawesome icon : https://fontawesome.com/icons
-link = "https://m.facebook.com/laconicnetwork/"
+#[[params.social]]
+#title = "facebook"
+#icon = "fab fa-facebook" # fontawesome icon : https://fontawesome.com/icons
+#link = "https://m.facebook.com/laconicnetwork/"
 
-[[params.social]]
-title = "reddit"
-icon = "fab fa-reddit" # fontawesome icon : https://fontawesome.com/icons
-link = "https://www.reddit.com/r/LaconicNetwork/"
+#[[params.social]]
+#title = "reddit"
+#icon = "fab fa-reddit" # fontawesome icon : https://fontawesome.com/icons
+#link = "https://www.reddit.com/r/LaconicNetwork/"
 
 [[params.social]]
 title = "linkedin"
