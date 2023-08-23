@@ -1,6 +1,6 @@
 ---
-title: "Introducing the Laconic Network"
-description: "Documentation for the Laconic Network. Laconic provides accurate, low-cost, multi-chain verifiable data, with cryptographic proofs. Laconic Watchers serve data to DApps."
+title: "Laconic Documentation"
+description: "Documentation for the Laconic stack"
 ---
 
-Lorum ipsum
+TODO: quick summary of our available docs
