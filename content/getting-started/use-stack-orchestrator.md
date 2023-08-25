@@ -5,4 +5,7 @@ draft: false
 weight: 2
 ---
 
-TODO
+revive
+
+[https://github.com/cerc-io/stack-orchestrator/blob/main/docs/cli.md](https://github.com/cerc-io/stack-orchestrator/blob/main/docs/cli.md)
+

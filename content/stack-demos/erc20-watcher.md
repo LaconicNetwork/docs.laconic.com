@@ -15,57 +15,14 @@ This tutorial will give you an overview of some key components of the Laconic St
 
 ## Install
 
-This tutorial assumes you are on a local machine (Mac or Linux). Trying it in the cloud requires additional configurations (e.g., opening ports) not covered here.
-
-### Pre-requisites
-
-- `python3` [Install](https://www.python.org/downloads/)
-- `docker` [Install](https://docs.docker.com/get-docker/)
-- `docker-compose` [Install](https://docs.docker.com/compose/install/)
-- MetaMask [Install](https://metamask.io/download/) in the supported browser of your choice.
-
-If using a fresh Ubuntu Digital Ocean droplet, check out [this script](https://github.com/cerc-io/stack-orchestrator/blob/main/scripts/quick-install-linux.sh) for a quick setup.
-
-**WARNING**: if installing docker-compose via package manager (as opposed to Docker Desktop), you must install the plugin, e.g., on Linux:
-
-```
-mkdir -p ~/.docker/cli-plugins
-curl -SL https://github.com/docker/compose/releases/download/v2.11.2/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
-chmod +x ~/.docker/cli-plugins/docker-compose
-```
-
-Next, install the latest release of Stack Orchestrator
-
-```
-curl -L -o laconic-so https://github.com/cerc-io/stack-orchestrator/releases/latest/download/laconic-so
-```
-
-Give it permission:
-```
-chmod +x laconic-so
-```
-
-Verify operation:
-```
-./laconic-so version
-```
-
-```
-Version: 1.1.0-f55a14b-202308221833
-```
-
-For a more permanent setup, move the binary to `~/bin` and add it your `PATH`.
-
-## Stack Orchestrator
-
-The `laconic-so` CLI tool makes it easy to experiment with various components of the stack. It allows you to quickly and seamlessly experiment with watchers. Because it uses docker/docker-compose, several commands in this tutorial will leverage the ability to execute commands directely in the containers. This, for example, means that `yarn` doesn't need to be installed on your local machine.
+This tutorial assumes you are on a local machine (Mac or Linux). Trying it in the cloud requires additional configuration (e.g., opening ports).
 
 ## Setup
 
-Use the stack orchestrator to pull the core repositories:
+Use stack orchestrator to pull the core repositories:
 
 ```
-./laconic-so --stack erc20 setup-repositories
+laconic-so --stack erc20 setup-repositories
 ```
 
 You'll see something like:
@@ -84,7 +41,7 @@ Checking: /root/cerc/watcher-ts: Needs to be fetched
 Next, we'll build the docker images for each repo we just fetched.
 
 ```
-./laconic-so --stack erc20 build-containers 
+laconic-so --stack erc20 build-containers 
 ```
 
 This process will take 10-15 minutes, go make a pot of coffee. The output will give you an idea of what's going on. Eventually, you'll see:
@@ -99,15 +56,12 @@ If you run into an error, it will likely be compiling foundry, which uses a lot 
 Next, let's deploy this stack:
 
 ```
-./laconic-so --stack erc20 deploy up
+laconic-so --stack erc20 deploy up
 ```
 
-The output will looks like this (ignore the warnings):
+The output will looks like this:
 
 ```
-WARN[0000] The "eth_proxy_on_error" variable is not set. Defaulting to a blank string. 
-WARN[0000] The "eth_forward_eth_calls" variable is not set. Defaulting to a blank string. 
-WARN[0000] The "eth_http_path" variable is not set. Defaulting to a blank string. 
 [+] Running 23/23
  ⠿ ipld-eth-db Pulled                                                                                                                   18.4s
    ⠿ 213ec9aee27d Already exists                                                                                                         0.0s
@@ -146,7 +100,7 @@ WARN[0000] The "eth_http_path" variable is not set. Defaulting to a blank string
 Let's take stock of what just happened, we:
 - cloned a bunch of repos: `laconic-so  --stack erc20 setup-repositories`
 - built all of their docker images: `laconic-so  --stack erc20 build-containers`
-- deployed these images as services that know about each other: `laconic-so  --stack erc20 deploy-system up`
+- deployed these images as services that know about each other: `laconic-so  --stack erc20 deploy up`
 
 Take a look at all the running docker containers:
 

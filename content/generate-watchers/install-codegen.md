@@ -5,4 +5,25 @@ draft: false
 weight: 1 
 ---
 
-install watcher codegen
+Install yarn
+
+TODO
+
+Get the code
+
+```bash
+git clone https://github.com/cerc-io/watcher-ts
+cd watcher-ts
+```
+
+Install the required packages
+
+```bash
+yarn
+```
+
+Build the files:
+
+```bash
+yarn build
+```

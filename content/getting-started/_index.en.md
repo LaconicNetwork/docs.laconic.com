@@ -1,7 +1,8 @@
 ---
 title: "Getting Started"
-description: "Install Stack Orchestrator"
+description: "Orientation"
 weight: 1
 ---
 
-Install Stack Orchestrator and do something simple
+
+List of stuff with breif description and explanantion of a logical workflow.
