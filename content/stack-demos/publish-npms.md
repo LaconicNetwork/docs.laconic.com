@@ -5,7 +5,8 @@ draft: false
 weight: 4 
 ---
 
-TODO spiff up & move npm stuff to the other article
+TODO
+- explain and reconfigure with the gitea demo
 
 ### Build Support Stack
 

@@ -4,4 +4,4 @@ description: "List of demos using Stack Orchestrator to deploy various component
 weight: 2 
 ---
 
-stacccks
+Although each stack has its own README.md to get it running, some stacks warrant an in-depth explanation. Or they do a good job of showcasing the different components of the Laconic stack.

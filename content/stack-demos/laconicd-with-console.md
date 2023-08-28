@@ -217,8 +217,7 @@ record:
 
 3. Try out additional CLI commands
 
-- these are documented [here](https://github.com/cerc-io/laconic-registry-cli#readme) and updates are forthcoming
-- e.g,:
+- these are documented [here](https://github.com/cerc-io/laconic-registry-cli#readme), e.g,:
 
 ```
 laconic-so --stack fixturenet-laconic-loaded deploy exec cli "laconic cns record list"

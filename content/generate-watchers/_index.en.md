@@ -1,7 +1,7 @@
 ---
 title: "Generate Watchers"
-description: "Explain watchers"
+description: "Watchers are better because..."
 weight: 3 
 ---
 
-Explain watchers
+Like "the graph" but better

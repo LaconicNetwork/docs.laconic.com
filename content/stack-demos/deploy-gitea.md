@@ -5,7 +5,9 @@ draft: false
 weight: 3
 ---
 
-TODO spiff up & move npm stuff to the other article
+TODO
+- write an explanation about why Gitea & how we're using it
+- reconfigure this demo with the "publish NPMs" demo
 
 ### Build Support Stack
 
