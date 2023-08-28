@@ -5,15 +5,16 @@ draft: false
 weight: 1 
 ---
 
-Stack Orchestrator
+[Stack Orchestrator](https://github.com/cerc-io/stack-orchestrator) is a command-line tool for building and deploying the Laconic stack and applications built using the stack. Installation details depends on the existing settings of your machine.
 
-### Pre-requisites
+These pre-requisites are required:
 
+- `jq` [Install](https://jqlang.github.io/jq/download/)
 - `python3` [Install](https://www.python.org/downloads/)
 - `docker` [Install](https://docs.docker.com/get-docker/)
 - `docker-compose` [Install](https://docs.docker.com/compose/install/)
 
-If using a fresh Ubuntu Digital Ocean droplet, check out [this script](https://github.com/cerc-io/stack-orchestrator/blob/main/scripts/quick-install-linux.sh) for a quick setup.
+If using a fresh Linux machine, check out [this script](https://github.com/cerc-io/stack-orchestrator/blob/main/scripts/quick-install-linux.sh) for a quick setup.
 
 **WARNING**: if installing docker-compose via package manager (as opposed to Docker Desktop), you must install the plugin, e.g., on Linux:
 
@@ -44,7 +45,3 @@ Version: 1.1.0-f55a14b-202308221833
 ```
 
 For a more permanent setup, move the binary to `~/bin` and add it your `PATH`.
-
-## Stack Orchestrator
-
-The `laconic-so` CLI tool makes it easy to experiment with various components of the stack. It allows you to quickly and seamlessly experiment with watchers. Because it uses docker/docker-compose, several commands in this tutorial will leverage the ability to execute commands directely in the containers. This, for example, means that `yarn` doesn't need to be installed on your local machine.
