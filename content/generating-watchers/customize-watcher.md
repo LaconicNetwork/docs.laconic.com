@@ -5,14 +5,4 @@ draft: false
 weight: 5
 ---
 
-In the previous section, we generated a watcher for your smart contract. You can see in the `./outputFolder`.
-
-Run a simple stack for it:
-
-```
-lso --something
-```
-
-then follow the instructions in the pre-generated README
-
-Now, go to localhost:port and explore your watcher!
+How to edit your watcher to suit the needs of your Dapp

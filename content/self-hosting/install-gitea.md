@@ -7,8 +7,7 @@ weight: 1
 
 TODO
 - write an explanation about why Gitea & how we're using it
-- reconfigure this demo with the "publish NPMs" demo
-
+- pull content out of this demo (and reconfigure it) into the next demo
 ### Build Support Stack
 
 JS/TS/NPM builds need an npm registry to store intermediate package artifacts.
