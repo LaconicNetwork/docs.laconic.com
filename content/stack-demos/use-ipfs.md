@@ -2,7 +2,7 @@
 title: "Use IPFS"
 date: 2022-12-30T09:19:28-05:00
 draft: false
-weight: 3
+weight: 1 
 ---
 
 The Kubo stack currently uses the native IPFS docker image, therefore a single command will do:

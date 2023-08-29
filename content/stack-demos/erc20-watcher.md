@@ -2,7 +2,7 @@
 title: "ERC20 Watcher Demo"
 date: 2022-12-30T09:19:28-05:00
 draft: true
-weight: 1
+weight: 10
 ---
 
 This tutorial will give you an overview of some key components of the Laconic Stack. You will accomplish the following:

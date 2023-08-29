@@ -1,7 +1,7 @@
 ---
-title: "Generating Watchers"
+title: "Generating A Watcher"
 description: "Watchers are better because..."
-weight: 3 
+weight: 3
 ---
 
-Like "the graph" but better
+TODO: why use a watcher vs. The Graph
