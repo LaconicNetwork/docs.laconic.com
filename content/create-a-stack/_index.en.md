@@ -11,3 +11,7 @@ Review the steps that have happened.
 
 Explain pre-requisits
 - steps to package up a webapp with SO and some example app.
+
+sort of blocked on:
+
+https://github.com/cerc-io/stack-orchestrator/issues/315

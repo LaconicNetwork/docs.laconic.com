@@ -12,3 +12,7 @@ dir structure that SO expects
 ```
 
 best practice to generate this based on your project.
+
+sort of blocked on:
+
+https://github.com/cerc-io/stack-orchestrator/issues/513

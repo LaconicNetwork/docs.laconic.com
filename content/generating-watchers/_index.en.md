@@ -1,5 +1,5 @@
 ---
-title: "Generate Watchers"
+title: "Generating Watchers"
 description: "Watchers are better because..."
 weight: 3 
 ---
