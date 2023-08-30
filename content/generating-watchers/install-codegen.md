@@ -5,25 +5,36 @@ draft: false
 weight: 1 
 ---
 
-Install yarn
+### Install yarn
 
-TODO
+For development:
+- Install Node using `nvm`: [https://github.com/nvm-sh/nvm](https://github.com/nvm-sh/nvm)
+- Install `yarn` with: `npm install -g yarn`
 
-Get the code
+For testing:
+- To only install `yarn`, on Linux, see [here](https://stackoverflow.com/a/53471064)
+
+### Get the code
 
 ```bash
 git clone https://github.com/cerc-io/watcher-ts
 cd watcher-ts
 ```
 
-Install the required packages
+### Install the required packages
 
 ```bash
 yarn
 ```
 
-Build the files:
+### Build the tool
 
 ```bash
 yarn build
+```
+
+### Verify operation
+
+```bash
+yarn codegen
 ```

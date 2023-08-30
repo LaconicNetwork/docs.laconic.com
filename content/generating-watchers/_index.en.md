@@ -4,4 +4,4 @@ description: "Watchers are better because..."
 weight: 3
 ---
 
-TODO: why use a watcher vs. The Graph
+TODO: explain what we're about to do and why, compare watchers to other solutions.
