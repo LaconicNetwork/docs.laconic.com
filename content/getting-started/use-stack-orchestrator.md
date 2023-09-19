@@ -10,10 +10,10 @@ Typically, a stack will be run like so:
 ```
 laconic-so --stack myStack setup-repositories
 laconic-so --stack myStack build-containers
-laconic-so --stack myStack deploy up
+laconic-so --stack myStack deploy-system up
 ```
 
-whereby each subcommand (and some of its options) is explained below with examples
+whereby `myStack` is defined in a `.yaml` file and specifies the variables for each command
 
 ## setup-repositories
 
@@ -46,22 +46,10 @@ laconic-so --stack fixturenet-eth setup-repositories --git-ssh
 Build a single container:
 
 ```
-laconic-so build-containers --include <container-name>
-```
-
-e.g,:
-
-```
 laconic-so build-containers --include cerc/go-ethereum
 ```
 
 Build the containers for a stack:
-
-```
-laconic-so --stack <stack-name> build-containers
-```
-
-e.g.
 
 ```
 laconic-so --stack fixturenet-eth build-containers
@@ -70,25 +58,36 @@ laconic-so --stack fixturenet-eth build-containers
 Force full rebuild of container images:
 
 ```
-laconic-so build-containers --include <container-name> --force-rebuild
+laconic-so build-containers --include fixturenet-eth --force-rebuild
 ```
 
 ## deploy-system
-TODO
-(aliased to `deploy)
 
-## deployment
-TODO
+Note: aliased to `deploy`
+
+Deploy a stack:
+
+```
+laconic-so --stack fixturenet-eth deploy up
+```
+
+View a stack:
+
+```
+laconic-so --stack fixturenet-eth deploy ps
+```
+
+Shut down a stack:
+
+```
+laconic-so --stack fixturenet-eth deploy down
+```
 
 ## build-npms
 
+Note: requires an env var set because these build & publish IIRC, and gitea up and running
+
 Build a single package:
-
-```
-laconic-so build-npms --include <package-name>
-```
-
-e.g.
 
 ```
 laconic-so build-npms --include laconic-sdk
@@ -97,17 +96,11 @@ laconic-so build-npms --include laconic-sdk
 Build the packages for a stack:
 
 ```
-laconic-so --stack <stack-name> build-npms
-```
-
-e.g.
-
-```
 laconic-so --stack fixturenet-laconicd build-npms
 ```
 
 Force full rebuild of packages:
 
 ```
-$ laconic-so build-npms --include <package-name> --force-rebuild
+laconic-so build-npms --include fixturenet-laconicd --force-rebuild
 ```
