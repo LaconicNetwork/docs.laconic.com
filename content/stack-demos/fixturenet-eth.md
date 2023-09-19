@@ -71,7 +71,6 @@ Several other containers can used with the basic `fixturenet-eth`:
 * `ipld-eth-db` (enables statediffing)
 * `ipld-eth-server` (GQL and Ethereum API server, requires `ipld-eth-db`)
 * `ipld-eth-beacon-db` and `ipld-eth-beacon-indexer` (for indexing Beacon chain blocks)
-* `eth-probe` (captures eth1 tx gossip)
 * `keycloak` (nginx proxy with keycloak auth for API authentication)
 * `tx-spammer` (generates and sends automated transactions to the fixturenet)
 
@@ -79,17 +78,17 @@ It is not necessary to use them all at once, however, a complete example follows
 
 ### Setup
 ```
-laconic-so setup-repositories --include github.com/cerc-io/go-ethereum,github.com/cerc-io/ipld-eth-db,github.com/cerc-io/ipld-eth-server,github.com/cerc-io/ipld-eth-beacon-db,github.com/cerc-io/ipld-eth-beacon-indexer,github.com/cerc-io/eth-probe,github.com/cerc-io/tx-spammer
+laconic-so setup-repositories --include github.com/cerc-io/go-ethereum,github.com/cerc-io/ipld-eth-db,github.com/cerc-io/ipld-eth-server,github.com/cerc-io/ipld-eth-beacon-db,github.com/cerc-io/ipld-eth-beacon-indexer,github.com/cerc-io/tx-spammer
 ```
 
 ### Build
 ```
-laconic-so build-containers --include cerc/go-ethereum,cerc/lighthouse,cerc/fixturenet-eth-geth,cerc/fixturenet-eth-lighthouse,cerc/ipld-eth-db,cerc/ipld-eth-server,cerc/ipld-eth-beacon-db,cerc/ipld-eth-beacon-indexer,cerc/eth-probe,cerc/keycloak,cerc/tx-spammer
+laconic-so build-containers --include cerc/go-ethereum,cerc/lighthouse,cerc/fixturenet-eth-geth,cerc/fixturenet-eth-lighthouse,cerc/ipld-eth-db,cerc/ipld-eth-server,cerc/ipld-eth-beacon-db,cerc/ipld-eth-beacon-indexer,cerc/keycloak,cerc/tx-spammer
 ```
 
 ### Deploy
 ```
-laconic-so deploy-system --include db,fixturenet-eth,ipld-eth-server,ipld-eth-beacon-db,ipld-eth-beacon-indexer,eth-probe,keycloak,tx-spammer up
+laconic-so deploy-system --include db,fixturenet-eth,ipld-eth-server,ipld-eth-beacon-db,ipld-eth-beacon-indexer,keycloak,tx-spammer up
 ```
 
 ### Status
@@ -110,9 +109,6 @@ docker ps -f 'name=laconic' --format 'table {{.Names}}\t{{.Ports}}'  | cut -d'-'
 ```
 ```
 NAMES                                                                           PORTS
-eth-probe-db-1                         0.0.0.0:55849->5432/tcp
-eth-probe-mq-1
-eth-probe-probe-1
 fixturenet-eth-bootnode-geth-1         8545-8546/tcp, 30303/udp, 0.0.0.0:55847->9898/tcp, 0.0.0.0:55848->30303/tcp
 fixturenet-eth-bootnode-lighthouse-1
 fixturenet-eth-geth-1-1                8546/tcp, 30303/tcp, 30303/udp, 0.0.0.0:55851->8545/tcp

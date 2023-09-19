@@ -5,4 +5,4 @@ draft: false
 weight: 5 #TODO number should be the last in the list
 ---
 
-If not already running a mainnet or your choice of fixturenet from the previous demos, the next step of generating and using  watcher requires - at a minimum, the following stack running:
+If not already running a mainnet or your choice of fixturenet from the previous demos, the next step of generating and using  watcher requires - at a minimum, the following stack running: TODO

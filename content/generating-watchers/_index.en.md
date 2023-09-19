@@ -1,7 +1,14 @@
 ---
 title: "Generating a Watcher"
-description: "Watchers are better because..."
+description: "Description of Watchers"
 weight: 3
 ---
 
-TODO: explain what we're about to do and why, compare watchers to other solutions.
+In the Laconic stack, watchers are similar to using "The Graph", but come with numerous benefits such as:
+
+- fast syncing data
+- open source framework
+- verifiable computations
+- less work than writing a subgraph
+
+Next, we document how to use the Laconic watcher framework to generate verifiable GraphQL queries for your smart contracts.

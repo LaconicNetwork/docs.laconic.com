@@ -5,36 +5,43 @@ draft: false
 weight: 1 
 ---
 
-### Install yarn
+Install yarn:
 
-For development:
 - Install Node using `nvm`: [https://github.com/nvm-sh/nvm](https://github.com/nvm-sh/nvm)
 - Install `yarn` with: `npm install -g yarn`
 
-For testing:
-- To only install `yarn`, on Linux, see [here](https://stackoverflow.com/a/53471064)
+Get the code:
 
-### Get the code
-
-```bash
+```
 git clone https://github.com/cerc-io/watcher-ts
 cd watcher-ts
 ```
 
-### Install the required packages
+Install the required packages and build the tools:
 
-```bash
-yarn
+```
+yarn && yarn build
 ```
 
-### Build the tool
+Enter the directory:
 
-```bash
-yarn build
+```
+cd packages/codegen
 ```
 
-### Verify operation
+Verify operation:
 
-```bash
-yarn codegen
 ```
+yarn codegen --version
+```
+
+you'll see like:
+
+```
+yarn run v1.22.19
+$ ts-node src/generate-code.ts --version
+0.2.55
+Done in 8.84s.
+```
+
+You are now ready to generate a watcher using `codegen`

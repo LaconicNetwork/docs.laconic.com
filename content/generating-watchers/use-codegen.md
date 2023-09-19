@@ -5,21 +5,16 @@ draft: false
 weight: 2
 ---
 
-### Create Config
-
-Create a `config.yaml` file in the following format:
+In `packages/codegen`, Create a `config.yaml` file in the following format:
 
 ```yaml
-# Example config.yaml
-# Contracts to watch (required).
-# Can pass empty array ([]) when using subgraphPath.
 contracts:
-    # Contract name.
-  - name: Example
-    # Contract file path or an url.
-    path: ../graph-node/test/contracts/Example.sol
+    # Contract name:
+  - name: SimpleContract
+    # Contract file path or an url:
+    path: ../../docs/SimpleContract.sol
     # Contract kind (should match name of dataSource in {subgraphPath}/subgraph.yaml if subgraphPath provided)
-    kind: Example1
+    #kind: Example1
 
 # Output folder path (logs output using `stdout` if not provided).
 outputFolder: ../test-watcher
@@ -28,7 +23,7 @@ outputFolder: ../test-watcher
 mode: none
 
 # Kind of watcher [lazy | active] (default: active).
-kind: active
+kind: lazy
 
 # Watcher server port (default: 3008).
 port: 3008
@@ -42,21 +37,28 @@ flatten: true
 
 # Path to the subgraph build (optional).
 # Can set empty contracts array when using subgraphPath.
-subgraphPath: ../graph-node/test/subgraph/example1/build
+# subgraphPath: ../graph-node/test/subgraph/example1/build
 
 # NOTE: When passed an *URL* as contract path, it is assumed that it points to an already flattened contract file.
 ```
 
-TODO: fixup/rm subgraph stuff
+Create the following example contract:
 
-* Ensure dependencies (e.g., Example.sol) are installed in the contracts repository before generating the watcher
+
 
 Generate a watcher from the example contract:
 
-```bash
-yarn codegen --config-file ./config.yaml
+```
+yarn codegen --config-file ./example.config.yaml
 ```
 
 The flag `--continue-on-error` can be used to continue generation if any unhandled data types are encountered. TODO explain this in the context of current and future codegen.
 
-This will create a folder containing the generated code at the path provided in config file. Let's explore it's contents.
+This will create a folder containing the generated code at the path provided in config file. Let's explore it's contents in `watcher-ts/packages/simple-contract-watcher`.
+
+## TODO
+
+```
+ls
+```
+then explain
