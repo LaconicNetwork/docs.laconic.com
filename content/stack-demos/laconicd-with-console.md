@@ -2,7 +2,7 @@
 title: "Laconic Registry"
 date: 2022-12-30T09:19:28-05:00
 draft: false
-weight: 2 
+weight: 3 
 ---
 
 The following tutorial explains the steps to run a laconicd fixturenet with CLI and web console that displays records in the registry. It is designed as an introduction to Stack Orchestrator and to showcase one component of the Laconic Stack. Prior to Stack Orchestrator, the following 4 repositories had to be cloned and setup manually:
