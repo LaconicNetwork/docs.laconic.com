@@ -12,7 +12,7 @@ Check out the "Self Hosting" section for a deep dive. The next demo "Laconic Reg
 ### Setup and Deploy Gitea
 
 ```
-laconic-so --stack build-support build-containers --exclude cerc/builder-gerbil
+laconic-so --stack build-support build-containers
 laconic-so --stack package-registry setup-repositories
 laconic-so --stack package-registry build-containers 
 laconic-so --stack package-registry deploy up

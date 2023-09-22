@@ -5,30 +5,30 @@ draft: false
 weight: 1 
 ---
 
-In the Gitea x Laconicd stack demo, we used the local Gitea instance to publish NPM packages, which were consumed by the build for a basic `laconicd` fixturenet. That demo intentionally omitted details about the Gitea self-hosting solution that we will cover below.
+In the Gitea x Laconicd stack demo, we used the local Gitea instance to publish NPM packages, which were consumed by the build for a basic `laconicd` fixturenet. That quick demo intentionally omitted many details about the Gitea self-hosting solution that we will cover below.
 
-### Build and Install Gitea
-```
+### Build and Deploy Gitea
+
+Recall the commands to build and deploy Gitea
+
+```bash
 laconic-so --stack build-support build-containers
 laconic-so --stack package-registry setup-repositories
 laconic-so --stack package-registry build-containers 
 laconic-so --stack package-registry deploy up
 ```
 
-```
-[+] Running 3/3
- ⠿ Network laconic-aecc4a21d3a502b14522db97d427e850_gitea       Created                                                                                    0.0s
- ⠿ Container laconic-aecc4a21d3a502b14522db97d427e850-db-1      Started                                                                                    1.2s
- ⠿ Container laconic-aecc4a21d3a502b14522db97d427e850-server-1  Started                                                                                    1.9s
-New user 'gitea_admin' has been successfully created!
-This is your gitea access token: <your-token>. Keep it safe and secure, it can not be fetched again from gitea.
-To use with laconic-so set this environment variable: export CERC_NPM_AUTH_TOKEN=<your-token>
-Created the organization cerc-io
-Gitea was configured to use host name: gitea.local, ensure that this resolves to localhost, e.g. with sudo vi /etc/hosts
-Success, gitea is properly initialized
+Let's break them down one by one:
+
+```bash
+laconic-so --stack build-support build-containers
 ```
 
-Note: the above commands can take several minutes depending on the specs of your machine.
+The `build-support` stack is core functionality and does not have a repo; its build files are contained within Stack Orchestrator [here](https://github.com/cerc-io/stack-orchestrator/tree/main/app/data/container-build/cerc-builder-js). It contains various utilities to handle the complexities of packaging and publishing npm packages. These complexities are normally outsourced to centralized service provideers.
+
+
+The output will include a token. This token was generated with these [scopes](https://github.com/cerc-io/hosting/blob/main/gitea/initialize-gitea.sh#L47), therefore upon logging in, you can create new tokens with specific scopes, as you would on GitHub.
+
 
 ### Configure the hostname gitea.local
 
