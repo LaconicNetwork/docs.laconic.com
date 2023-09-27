@@ -5,20 +5,20 @@ draft: false
 weight: 2
 ---
 
-This is a quick demo of our Gitea self-hosting solution. The locally deployed Gitea instance is the npm registry from which the `laconicd` stack is built.
+This is a quick demo of our Gitea self-hosting solution alongside deploying a single node `laconicd` fixturenet. The locally deployed Gitea instance is used as the npm registry which hosts dependencies for the build.
 
-Check out the "Self Hosting" section for a deep dive. The next demo "Laconic Registry" uses our (external) Gitea npm registry to build the stack, and showcases the registry and console front-end.
+An entire section of the documentation is dedicated to self-hosting for those interested. The "Laconic Registry" stack demo instead uses our public [Gitea npm and container registry](https://git.vdb.to/cerc-io/-/packages) to build the `laconicd` stack, as well as demonstrating the registry with an example record on the console front-end.
 
 ### Setup and Deploy Gitea
 
-```
+```bash
 laconic-so --stack build-support build-containers
 laconic-so --stack package-registry setup-repositories
 laconic-so --stack package-registry build-containers 
 laconic-so --stack package-registry deploy up
 ```
 
-```
+```bash
 [+] Running 3/3
  ⠿ Network laconic-aecc4a21d3a502b14522db97d427e850_gitea       Created                                                                                    0.0s
  ⠿ Container laconic-aecc4a21d3a502b14522db97d427e850-db-1      Started                                                                                    1.2s
@@ -37,16 +37,17 @@ Success, gitea is properly initialized
 
 How to do this depends on your operating system  but usually involves editing a `hosts` file. For example, on Linux add this line to the file `/etc/hosts` (needs sudo):
 
-```
+```bash
 127.0.0.1       gitea.local
 ```
 
 Test with:
 
-```
+```bash
 ping gitea.local
 ```
-```
+
+```bash
 PING gitea.local (127.0.0.1) 56(84) bytes of data.
 64 bytes from localhost (127.0.0.1): icmp_seq=1 ttl=64 time=0.147 ms
 64 bytes from localhost (127.0.0.1): icmp_seq=2 ttl=64 time=0.033 ms
@@ -60,17 +61,17 @@ Now npm packages can be built:
 
 Next, clone the required repositories:
 
-```
+```bash
 laconic-so --stack fixturenet-laconicd setup-repositories
 ```
 
 Ensure that `CERC_NPM_AUTH_TOKEN` is set with the token printed above when the package-registry stack was deployed (the actual token value will be different than shown in this example):
 
-```
+```bash
 export CERC_NPM_AUTH_TOKEN=<your-token>
 ```
 
-```
+```bash
 laconic-so --stack fixturenet-laconicd build-npms
 ```
 
@@ -80,19 +81,19 @@ Navigate to the Gitea console and switch to the `cerc-io` user then find the `Pa
 
 ### Build fixturenet containers
 
-```
+```bash
 laconic-so --stack fixturenet-laconicd build-containers
 ```
 
 Check the logs:
 
-```
+```bash
 laconic-so --stack fixturenet-laconicd deploy logs
 ```
 
 ### Test with the registry CLI
 
-```
+```bash
 laconic-so --stack fixturenet-laconicd deploy exec cli "laconic cns status"
 ```
 
