@@ -5,49 +5,9 @@ draft: false
 weight: 3
 ---
 
-Before we get into the Azimuth stack, let's take a look at Kubo.
+The Azimuth stack demonstrates a full example using watcher - the only thing missing is the RPC and GQL endpoints for `ipld-eth-server`.
 
-### Kubo - docker image only
-
-The `kubo` stack is the most minimal possible. It has a `stack.yml` that looks like:
-
-```yaml
-version: "1.0"
-name: kubo 
-description: "Run kubo (IPFS)"
-repos:
-containers:
-pods:
-  - kubo 
-```
-and a `docker-compose-kubo.yml` that looks like:
-
-```yaml
-version: "3.2"
-services:
-  ipfs:
-    image: ipfs/kubo:master-2023-02-20-714a968
-    restart: always
-    volumes:
-      - ./ipfs/import:/import
-      - ./ipfs/data:/data/ipfs
-    ports:
-      - "0.0.0.0:8080:8080"
-      - "0.0.0.0:4001:4001"
-      - "0.0.0.0:5001:5001"
-```
-
-Because it uses an existing docker image, it runs with a single command:
-
-```bash
-laconic-so --stack kubo deploy up
-```
-
-One could, with a relatively light lift, add the files required to build and deploy Kubo from source, using the Stack Orchestrator framework. Having the ability to do with relative ease is one goals of Stack Orchestrator.
-
-The Azimuth stack demonstrates a full example using watcher.
-
-### Azimuth - a full example
+### stack.yaml
 
 Starting with the `stack.yml`, we see:
 
@@ -62,7 +22,11 @@ pods:
   - watcher-azimuth
 ```
 
-The single conatiner is built from this Dockerfile:
+### Dockerfile
+
+Note: the line `yarn && yarn build` would, in most webapp situations, be replaced by `yarn global add @some-registry/my-watcher`. This process is documented in the "Self Hosting" and "WebApp" sections of the documentation.
+
+The single container is built from this Dockerfile:
 
 ```Dockerfile
 FROM node:18.16.0-alpine3.16
@@ -92,6 +56,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 docker build -t cerc/watcher-azimuth:local -f ${SCRIPT_DIR}/Dockerfile ${build_command_args} ${CERC_REPO_BASE_DIR}/azimuth-watcher-ts
 ```
+
+### docker-compose.yml
 
 Then, the `docker-compose-watcher-azimuth.yml` (some parts omitted for brevity):
 
@@ -246,7 +212,9 @@ volumes:
   watcher_db_data:
 ```
 
-and finally, a handful of config files are found [here](https://github.com/cerc-io/stack-orchestrator/tree/main/app/data/config/watcher-azimuth):
+### Configuration
+
+A handful of config files are found [here](https://github.com/cerc-io/stack-orchestrator/tree/main/app/data/config/watcher-azimuth):
 
 ```bash
 ls app/data/config/watcher-azimuth
@@ -255,5 +223,3 @@ ls app/data/config/watcher-azimuth
 ```bash
 gateway-watchers.json  merge-toml.js  start-server.sh  watcher-config-template.toml  watcher-params.env
 ```
-
-Importantly, the `watcher-params.env` is where you would set the `ipld-eth-server` RPC and GQL endpoints

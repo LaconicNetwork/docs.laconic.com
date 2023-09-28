@@ -65,7 +65,7 @@ Next, clone the required repositories:
 laconic-so --stack fixturenet-laconicd setup-repositories
 ```
 
-Ensure that `CERC_NPM_AUTH_TOKEN` is set with the token printed above when the package-registry stack was deployed (the actual token value will be different than shown in this example):
+Ensure that `CERC_NPM_AUTH_TOKEN` is set with the token printed above when the package-registry stack was deployed:
 
 ```bash
 export CERC_NPM_AUTH_TOKEN=<your-token>
@@ -75,7 +75,7 @@ export CERC_NPM_AUTH_TOKEN=<your-token>
 laconic-so --stack fixturenet-laconicd build-npms
 ```
 
-Navigate to the Gitea console and switch to the `cerc-io` user then find the `Packages` tab to confirm that these two npm packages have been published.
+Navigate to the Gitea console, switch to the `cerc-io` user, find the `Packages` tab to confirm that these two npm packages have been published:
 
 ![npm-package](../../images/npms.png)
 
@@ -97,4 +97,4 @@ laconic-so --stack fixturenet-laconicd deploy logs
 laconic-so --stack fixturenet-laconicd deploy exec cli "laconic cns status"
 ```
 
-Try additional CLI commands, documented [here](https://github.com/cerc-io/laconic-registry-cli#operations). Note that in order to publish records, you'll need to `docker cp` the `watcher.yml` file.
+Try additional CLI commands, documented [here](https://github.com/cerc-io/laconic-registry-cli#operations). Note that in order to publish records, you'll need to `docker cp` the `watcher.yml` file. The next demo includes some automation to deploy a sample record and view it in the console.

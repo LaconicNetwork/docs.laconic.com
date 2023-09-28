@@ -28,6 +28,8 @@ laconic-so --stack fixturenet-laconic-loaded setup-repositories --include github
 export CERC_NPM_REGISTRY_URL=https://git.vdb.to/api/packages/cerc-io/npm/
 ```
 
+This is so that in the next command, the npm packages (e.g., console) required for the build can be pulled from [our package registry](https://git.vdb.to/cerc-io/-/packages).
+
 3. Build the containers:
 
 ```bash

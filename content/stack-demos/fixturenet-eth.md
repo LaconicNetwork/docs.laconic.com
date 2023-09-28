@@ -46,6 +46,8 @@ Waiting for beacon bellatrix pre-merge.... done
 Waiting for beacon bellatrix merge.... done
 ```
 
+### List running containers
+
 ```bash
 laconic-so --stack fixturenet-eth deploy ps
 ```
@@ -61,6 +63,7 @@ id: de5115bf89087bae03b291664a73ffe3554fe23e79e4b8345e088b040d5580ac, name: laco
 id: 2a7e5a0fb2be7fc9261a7b725a40818facbbe6d0cb2497d82c0e02de0a8e959b, name: laconic-b12fa16e999821562937781f8ab0b1e8-foundry-1, ports:
 ```
 
+### Print block number
 ```bash
 laconic-so --stack fixturenet-eth deploy exec foundry "cast block-number"
 ```
@@ -69,7 +72,7 @@ laconic-so --stack fixturenet-eth deploy exec foundry "cast block-number"
 3
 ```
 
-### Additional pieces
+### Full example
 
 Several other containers can used with the basic `fixturenet-eth`:
 
@@ -80,8 +83,6 @@ Several other containers can used with the basic `fixturenet-eth`:
 * `tx-spammer` (generates and sends automated transactions to the fixturenet)
 
 It is not necessary to use them all at once, however, an example with all of them follows:
-
-### Full Example
 
 ```bash
 laconic-so setup-repositories --include github.com/cerc-io/go-ethereum,github.com/cerc-io/ipld-eth-db,github.com/cerc-io/ipld-eth-server,github.com/cerc-io/ipld-eth-beacon-db,github.com/cerc-io/ipld-eth-beacon-indexer,github.com/cerc-io/tx-spammer

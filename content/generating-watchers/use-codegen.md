@@ -65,7 +65,7 @@ contract SimpleContract {
 
 Generate a watcher from the example contract:
 
-```
+```bash
 yarn codegen --config-file ./example.config.yaml
 ```
 
