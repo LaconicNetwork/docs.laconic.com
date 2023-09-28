@@ -5,7 +5,7 @@ draft: false
 weight: 1 
 ---
 
-In the Gitea x Laconicd stack demo, we used the local Gitea instance to publish NPM packages, which were consumed by the build for a basic `laconicd` fixturenet. That quick demo intentionally omitted many details about the Gitea self-hosting solution that we will cover below.
+In the Gitea x Laconicd stack demo, we used the local Gitea instance to publish NPM packages, which were consumed by the build for a basic `laconicd` fixturenet. That quick demo intentionally omitted some details about the Gitea self-hosting solution that we will cover below.
 
 ### Build and deploy
 
@@ -25,10 +25,8 @@ Let's break them down one by one:
 laconic-so --stack build-support build-containers
 ```
 
-The `build-support` stack is core functionality and does not have a repo; its build files are contained within Stack Orchestrator [here](https://github.com/cerc-io/stack-orchestrator/tree/main/app/data/container-build/cerc-builder-js). It contains various utilities to handle the complexities of packaging and publishing npm packages. These complexities are normally outsourced to centralized service provideers.
+The `build-support` stack is core functionality and does not have a repo; its build files are contained within Stack Orchestrator [here](https://github.com/cerc-io/stack-orchestrator/tree/main/app/data/container-build/cerc-builder-js). It contains various utilities to handle the complexities of packaging and publishing npm packages. These complexities are normally outsourced to centralized service providers.
 
-
-The output will include a token. This token was generated with these [scopes](https://github.com/cerc-io/hosting/blob/main/gitea/initialize-gitea.sh#L47), therefore upon logging in, you can create new tokens with specific scopes, as you would on GitHub.
 
 Next, we clone the repositories:
 
@@ -52,15 +50,17 @@ Finally, deploy the whole stack
 laconic-so --stack package-registry deploy up
 ```
 
+The output will include a token. This token was generated with these [scopes](https://github.com/cerc-io/hosting/blob/main/gitea/initialize-gitea.sh#L47). You can create more by logging in with the default credentials (see below).
+
 Now, gitea is running. See the containers with:
 
 ```bash
-docker ps
+laconic-so --stack package-registry deploy ps
 ```
 
 ### Configure the hostname
 
-The way to do this depends on your operating system  but usually involves editing a `hosts` file. For example, on Linux add this line to the file `/etc/hosts` (needs sudo):
+The way to do this depends on your operating system but usually involves editing a `hosts` file. For example, on Linux add this line to the file `/etc/hosts`:
 
 ```bash
 127.0.0.1       gitea.local
@@ -79,8 +79,7 @@ PING gitea.local (127.0.0.1) 56(84) bytes of data.
 
 You can now access the Gitea web interface at: [http://gitea.local:3000](http://gitea.local:3000) using these credentials: `gitea_admin/admin1234`. Please properly secure Gitea if public internet access is allowed.
 
-### Make it your own
+### Next steps
 
+In addition to hosting your code, this Gitea instance has a docker image and npm package registry which can be used to eliminate reliance on centralized service providers. That way, instead of hub.docker.com or npmjs.com, the code and front-end delivery pipeline for your Dapp is available for users to run themselves. Integration in the Laconic stack also means that your Dapp can leverage payment channels to deliver the relevant data to users.
 
-
-### Available resources

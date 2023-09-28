@@ -7,7 +7,7 @@ weight: 2
 
 Typically, a stack will be run like so:
 
-```
+```bash
 laconic-so --stack myStack setup-repositories
 laconic-so --stack myStack build-containers
 laconic-so --stack myStack deploy-system up
@@ -15,92 +15,86 @@ laconic-so --stack myStack deploy-system up
 
 whereby `myStack` is defined in a `.yaml` file and specifies the variables for each command
 
-## setup-repositories
+### setup-repositories
 
 Clone a single repository:
 
-```
+```bash
 laconic-so setup-repositories --include github.com/cerc-io/go-ethereum
 ```
 
 Clone the repositories for a stack:
 
-```
+```bash
 laconic-so --stack fixturenet-eth setup-repositories
 ```
 
 Pull latest commits from origin:
 
-```
+```bash
 laconic-so --stack fixturenet-eth setup-repositories --pull
 ```
 
-Use SSH rather than https:
-
-```
-laconic-so --stack fixturenet-eth setup-repositories --git-ssh
-```
-
-## build-containers
+### build-containers
 
 Build a single container:
 
-```
+```bash
 laconic-so build-containers --include cerc/go-ethereum
 ```
 
 Build the containers for a stack:
 
-```
+```bash
 laconic-so --stack fixturenet-eth build-containers
 ```
 
 Force full rebuild of container images:
 
-```
+```bash
 laconic-so build-containers --include fixturenet-eth --force-rebuild
 ```
 
-## deploy-system
+### deploy-system
 
 Note: aliased to `deploy`
 
 Deploy a stack:
 
-```
-laconic-so --stack fixturenet-eth deploy up
+```bash
+laconic-so --stack fixturenet-eth deploy-system up
 ```
 
 View a stack:
 
-```
-laconic-so --stack fixturenet-eth deploy ps
+```bash
+laconic-so --stack fixturenet-eth deploy-system ps
 ```
 
 Shut down a stack:
 
+```bash
+laconic-so --stack fixturenet-eth deploy-system down
 ```
-laconic-so --stack fixturenet-eth deploy down
-```
 
-## build-npms
+### build-npms
 
-Note: requires an env var set because these build & publish IIRC, and gitea up and running
+Note: requires `CERC_NPM_REGISTRY_URL` and `CERC_NPM_AUTH_TOKEN` set. If the former is unset, it will default to a local Gitea on port 3000.
 
-Build a single package:
+Build and publish a single package:
 
-```
+```bash
 laconic-so build-npms --include laconic-sdk
 ```
 
-Build the packages for a stack:
+Build and publish packages for a stack:
 
-```
+```bash
 laconic-so --stack fixturenet-laconicd build-npms
 ```
 
 Force full rebuild of packages:
 
-```
+```bash
 laconic-so build-npms --include fixturenet-laconicd --force-rebuild
 ```

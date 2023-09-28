@@ -77,7 +77,7 @@ laconic-so --stack fixturenet-laconicd build-npms
 
 Navigate to the Gitea console and switch to the `cerc-io` user then find the `Packages` tab to confirm that these two npm packages have been published.
 
-![npm-package](../images/test.png)
+![npm-package](../../images/npms.png)
 
 ### Build fixturenet containers
 
