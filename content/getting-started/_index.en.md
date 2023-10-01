@@ -4,14 +4,12 @@ description: "Orientation"
 weight: 1
 ---
 
-To use the Laconic stack, follow along in this order:
+Typically, one would follow along in this order:
 
-1) install stack orchestrator
-2) use stack orchestrator to deploy any number of stacks
-3) install codegen
-4) select a smart contract to watch 
-5) use codegen to generate a watcher for that contract
-6) leverage the Laconic toolchain to:
-7) package your app in a repeatable, decentralized manner
-
-TODO: expand
+1) install stack orchestrator - a multi purpose tool for handling Dapp testing and deployment
+2) use stack orchestrator to deploy one or more existing stacks
+3) install codegen - a GraphQL generator for querying data from smart contracts
+4) use codegen to generate a watcher for an example contract
+5) explore how a more complex watcher is packaged for deployment
+6) run our self-hosting tools (Gitea) which includes package registry utilities
+7) package and deliver your Dapp to users in a manner more decentralized than any other option

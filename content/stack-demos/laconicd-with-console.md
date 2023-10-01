@@ -2,7 +2,7 @@
 title: "Laconic Registry"
 date: 2022-12-30T09:19:28-05:00
 draft: false
-weight: 2 
+weight: 3 
 ---
 
 The following tutorial explains the steps to run a laconicd fixturenet with CLI and web console that displays records in the registry. It is designed as an introduction to Stack Orchestrator and to showcase one component of the Laconic Stack. Prior to Stack Orchestrator, the following 4 repositories had to be cloned and setup manually:
@@ -12,63 +12,27 @@ The following tutorial explains the steps to run a laconicd fixturenet with CLI 
 - https://github.com/cerc-io/laconic-registry-cli
 - https://github.com/cerc-io/laconic-console
 
-Now, with Stack Orchestrator, it is a few quick commands. Additionally, the `docker` and `docker compose` integration on the back-end allows the stack to easily persist, facilitating workflows.
+Now, with Stack Orchestrator, it is a few quick commands. Additionally, the `docker` and `docker compose` integration on the back-end allows the stack to easily persist.
 
-## Setup laconic-so
-
-To avoid hiccups on Mac M1/M2 and any local machine nuances that may affect the user experience, this tutorial is focused on using a fresh Digital Ocean (DO) droplet with similar specs: 
-16 GB Memory / 8 Intel vCPUs / 160 GB Disk.
-
-1. Login to the droplet as root (either by SSH key or password set in the DO console)
-
-```
-ssh root@IP
-```
-
-2. Get the install script, give it executable permissions, and run it:
-
-```
-curl -o install.sh https://raw.githubusercontent.com/cerc-io/stack-orchestrator/main/scripts/quick-install-linux.sh
-```
-```
-chmod +x install.sh
-```
-```
-bash install.sh
-```
-
-3. Confirm docker was installed and activate the changes in `~/.profile`:
-
-```
-docker run hello-world
-```
-```
-source ~/.profile
-```
-
-4. Verify installation:
-
-```
-laconic-so version
-```
-
-## Setup the laconic fixturenet stack
+### Setup the laconic fixturenet stack
 
 1. Get the repositories
 
-```
+```bash
 laconic-so --stack fixturenet-laconic-loaded setup-repositories --include github.com/cerc-io/laconicd,github.com/cerc-io/laconic-sdk,github.com/cerc-io/laconic-registry-cli,github.com/cerc-io/laconic-console
 ```
 
 2. Set this environment variable to the Laconic self-hosted Gitea instance:
 
-```
+```bash
 export CERC_NPM_REGISTRY_URL=https://git.vdb.to/api/packages/cerc-io/npm/
 ```
 
+This is so that in the next command, the npm packages (e.g., console) required for the build can be pulled from [our package registry](https://git.vdb.to/cerc-io/-/packages).
+
 3. Build the containers:
 
-```
+```bash
 laconic-so --stack fixturenet-laconic-loaded build-containers
 ```
 
@@ -76,25 +40,25 @@ It's possible to run into an `ESOCKETTIMEDOUT` error, e.g., `error An unexpected
 
 4. Set this environment variable to your droplet's IP address:
 
-```
+```bash
 export LACONIC_HOSTED_ENDPOINT=http://<your-IP>
 ```
 
 5. Deploy the stack:
 
-```
+```bash
 laconic-so --stack fixturenet-laconic-loaded deploy up
 ```
 
 6. Check the logs:
 
-```
+```bash
 laconic-so --stack fixturenet-laconic-loaded deploy logs
 ```
 
 You'll see output from `laconicd` and the block height should be >1 to confirm it is running:
 
-```
+```bash
 laconic-5cd0a80c1442c3044c8b295d26426bae-laconicd-1         | 9:29PM INF indexed block exents height=12 module=txindex server=node
 laconic-5cd0a80c1442c3044c8b295d26426bae-laconicd-1         | 9:30PM INF Timed out dur=4976.960115 height=13 module=consensus round=0 server=node step=1
 laconic-5cd0a80c1442c3044c8b295d26426bae-laconicd-1         | 9:30PM INF received proposal module=consensus proposal={"Type":32,"block_id":{"hash":"D26C088A711F912ADB97888C269F628DA33153795621967BE44DCB43C3D03CA4","parts":{"hash":"22411A20B7F14CDA33244420FBDDAF24450C0628C7A06034FF22DAC3699DDCC8","total":1}},"height":13,"pol_round":-1,"round":0,"signature":"DEuqnaQmvyYbUwckttJmgKdpRu6eVm9i+9rQ1pIrV2PidkMNdWRZBLdmNghkIrUzGbW8Xd7UVJxtLRmwRASgBg==","timestamp":"2023-04-18T21:30:01.49450663Z"} server=node
@@ -109,11 +73,11 @@ laconic-5cd0a80c1442c3044c8b295d26426bae-laconicd-1         | 9:30PM INF indexed
 
 7. Confirm operation of the registry CLI:
 
-```
+```bash
 laconic-so --stack fixturenet-laconic-loaded deploy exec cli "laconic cns status"
 ```
 
-```
+```bash
 {
   "version": "0.3.0",
   "node": {
@@ -144,7 +108,7 @@ laconic-so --stack fixturenet-laconic-loaded deploy exec cli "laconic cns status
 }
 ```
 
-## Configure Digital Ocean firewall
+### Configure Digital Ocean firewall
 
 Let's open some ports.
 
@@ -152,10 +116,10 @@ Let's open some ports.
 
 2. Get the port for the running console:
 
-```
+```bash
 echo http://IP:$(laconic-so --stack fixturenet-laconic-loaded deploy port laconic-console 80 | cut -d ':' -f 2)
 ```
-```
+```bash
 http://IP:32778
 ```
 
@@ -173,23 +137,23 @@ Additional ports will need to be opened depending on your application. Ensure yo
 - navigate to the status tab; it should display similar/identical information
 - navigate to the config tab, you'll see something like (with your IP):
 
-```
+```bash
 wns
   webui http://68.183.195.210:9473/console
   server http://68.183.195.210:9473/api
 ```
 
-## Publish and query a sample record to the registry
+### Publish and query a sample record
 
 1. The following command will create a bond and publish a record:
 
-```
+```bash
 laconic-so --stack fixturenet-laconic-loaded deploy exec cli ./scripts/create-demo-records.sh
 ```
 
 You'll get an output like:
 
-```
+```bash
 Balance is: 99998999999999998999600000
 Created bond with id: dd88e8d6f9567b32b28e70552aea4419c5dd3307ebae85a284d1fe38904e301a
 Published demo-record-1.yml with id: bafyreierh3xnfivexlscdwubvczmddsnf46uytyfvrbdhkjzztvsz6ruly
@@ -197,7 +161,7 @@ Published demo-record-1.yml with id: bafyreierh3xnfivexlscdwubvczmddsnf46uytyfvr
 
 The sample record we deployed looks like:
 
-```
+```bash
 record:
   type: WebsiteRegistrationRecord
   url: 'https://cerc.io'
@@ -219,6 +183,6 @@ record:
 
 - these are documented [here](https://github.com/cerc-io/laconic-registry-cli#readme), e.g,:
 
-```
+```bash
 laconic-so --stack fixturenet-laconic-loaded deploy exec cli "laconic cns record list"
 ```

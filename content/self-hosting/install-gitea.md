@@ -5,109 +5,81 @@ draft: false
 weight: 1 
 ---
 
-TODO
-- write an explanation about why Gitea & how we're using it
-- pull content out of this demo (and reconfigure it) into the next demo
-### Build Support Stack
+In the Gitea x Laconicd stack demo, we used the local Gitea instance to publish NPM packages, which were consumed by the build for a basic `laconicd` fixturenet. That quick demo intentionally omitted some details about the Gitea self-hosting solution that we will cover below. TODO: figure out better deduplication with the LxD demo.
 
-JS/TS/NPM builds need an npm registry to store intermediate package artifacts.
-This can be supplied by the user (e.g. using a hosted registry or even npmjs.com), or a local registry using gitea can be deployed by stack orchestrator.
-To use a user-supplied registry set these environment variables:
+### Build and deploy
 
-`CERC_NPM_REGISTRY_URL` and 
-`CERC_NPM_AUTH_TOKEN`
+Below are the commands to build and deploy a pre-configured Gitea instance. It includes `act` and the runner needed for Gitea Actions to work.
 
-Leave `CERC_NPM_REGISTRY_URL` un-set to use the local gitea registry.
 
-### Build support containers
-
-Note: the scheme/gerbil container is excluded as it isn't currently required for the package registry.
-
-```
-laconic-so --stack build-support build-containers --exclude cerc/builder-gerbil
-```
-
-### Deploy Gitea Package Registry
-
-```
+```bash
+laconic-so --stack build-support build-containers
 laconic-so --stack package-registry setup-repositories
 laconic-so --stack package-registry build-containers 
 laconic-so --stack package-registry deploy up
 ```
-```
-[+] Running 3/3
- ⠿ Network laconic-aecc4a21d3a502b14522db97d427e850_gitea       Created                                                                                    0.0s
- ⠿ Container laconic-aecc4a21d3a502b14522db97d427e850-db-1      Started                                                                                    1.2s
- ⠿ Container laconic-aecc4a21d3a502b14522db97d427e850-server-1  Started                                                                                    1.9s
-New user 'gitea_admin' has been successfully created!
-This is your gitea access token: 84fe66a73698bf11edbdccd0a338236b7d1d5c45. Keep it safe and secure, it can not be fetched again from gitea.
-To use with laconic-so set this environment variable: export CERC_NPM_AUTH_TOKEN=3e493e77b3e83fe9e882f7e3a79dd4d5441c308b
-Created the organization cerc-io
-Gitea was configured to use host name: gitea.local, ensure that this resolves to localhost, e.g. with sudo vi /etc/hosts
-Success, gitea is properly initialized
+
+Let's break them down one by one:
+
+```bash
+laconic-so --stack build-support build-containers
 ```
 
-Note: the above commands can take several minutes depending on the specs of your machine.
+The `build-support` stack is core functionality and does not have a repo; its build files are contained within Stack Orchestrator [here](https://github.com/cerc-io/stack-orchestrator/tree/main/app/data/container-build/cerc-builder-js). It contains various utilities to handle the complexities of packaging and publishing npm packages. These complexities are normally outsourced to centralized service providers.
 
-### Configure the hostname gitea.local
 
-How to do this depends on your operating system  but usually involves editing a `hosts` file. For example, on Linux add this line to the file `/etc/hosts` (needs sudo):
+Next, we clone the repositories:
 
+```bash
+laconic-so --stack package-registry setup-repositories
 ```
+
+Recall that `laconic-so` will clone repositories to `CERC_REPO_BASE_DIR`, which defaults to `~/cerc`.
+
+At this point, you can navigate to the cloned repos (e.g., `~/cerc/hosting`) and modify the contents to suite the details of your organization - for example, at the top of [this file](https://github.com/cerc-io/hosting/blob/main/gitea/initialize-gitea.sh)
+
+Then, build the containers. Because of how docker does caching, you'll want to use the `--force-rebuild` flag each time you modify source code in `CERC_REPO_BASE_DIR`.
+
+```bash
+laconic-so --stack package-registry build-containers 
+```
+
+Finally, deploy the whole stack
+
+```bash
+laconic-so --stack package-registry deploy up
+```
+
+The output will include a token. This token was generated with these [scopes](https://github.com/cerc-io/hosting/blob/main/gitea/initialize-gitea.sh#L47). You can create more by logging in with the default credentials (see below).
+
+Now, gitea is running. See the containers with:
+
+```bash
+laconic-so --stack package-registry deploy ps
+```
+
+### Configure the hostname
+
+The way to do this depends on your operating system but usually involves editing a `hosts` file. For example, on Linux add this line to the file `/etc/hosts`:
+
+```bash
 127.0.0.1       gitea.local
 ```
 
 Test with:
 
-```
+```bash
 ping gitea.local
 ```
-```
+```bash
 PING gitea.local (127.0.0.1) 56(84) bytes of data.
 64 bytes from localhost (127.0.0.1): icmp_seq=1 ttl=64 time=0.147 ms
 64 bytes from localhost (127.0.0.1): icmp_seq=2 ttl=64 time=0.033 ms
 ```
 
-Although not necessary in order to build and publish packages, you can now access the Gitea web interface at: [http://gitea.local:3000](http://gitea.local:3000) using these credentials: `gitea_admin/admin1234` (Note: please properly secure Gitea if public internet access is allowed).
+You can now access the Gitea web interface at: [http://gitea.local:3000](http://gitea.local:3000) using these credentials: `gitea_admin/admin1234`. Please properly secure Gitea if public internet access is allowed.
 
-Now npm packages can be built:
+### Next steps
 
-### Build npm Packages
+In addition to hosting your code, this Gitea instance has a docker image and npm package registry which can be used to eliminate reliance on centralized service providers. That way, instead of hub.docker.com or npmjs.com, the code and front-end delivery pipeline for your Dapp is available for users to run themselves. Integration in the Laconic stack also means that your Dapp can leverage payment channels to deliver the relevant data to users.
 
-Next, clone the required repositories:
-
-```
-laconic-so --stack fixturenet-laconicd setup-repositories
-```
-
-Ensure that `CERC_NPM_AUTH_TOKEN` is set with the token printed above when the package-registry stack was deployed (the actual token value will be different than shown in this example):
-
-```
-export CERC_NPM_AUTH_TOKEN=84fe66a73698bf11edbdccd0a338236b7d1d5c45
-```
-
-```
-laconic-so --stack fixturenet-laconicd build-npms
-```
-
-Navigate to the Gitea console and switch to the `cerc-io` user then find the `Packages` tab to confirm that these two npm packages have been published.
-
-### Build fixturenet containers
-
-```
-laconic-so --stack fixturenet-laconicd build-containers
-```
-
-Check the logs:
-
-```
-laconic-so --stack fixturenet-laconicd deploy logs
-```
-
-### Test with the registry CLI
-
-```
-laconic-so --stack fixturenet-laconicd deploy exec cli "laconic cns status"
-```
-
-Try additional CLI commands, documented [here](https://github.com/cerc-io/laconic-registry-cli#operations). Note that in order to publish records, you'll need to `docker cp` the `watcher.yml` file.

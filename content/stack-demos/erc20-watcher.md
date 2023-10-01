@@ -21,12 +21,12 @@ This tutorial assumes you are on a local machine (Mac or Linux). Trying it in th
 
 Use stack orchestrator to pull the core repositories:
 
-```
+```bash
 laconic-so --stack erc20 setup-repositories
 ```
 
 You'll see something like:
-```
+```bash
 Dev Root is: /root/cerc
 Checking: /root/cerc/go-ethereum: Needs to be fetched
 100%|####################################################################################################| 71.6k/71.6k [00:23<00:00, 3.10kB/s]
@@ -40,13 +40,13 @@ Checking: /root/cerc/watcher-ts: Needs to be fetched
 
 Next, we'll build the docker images for each repo we just fetched.
 
-```
+```bash
 laconic-so --stack erc20 build-containers 
 ```
 
 This process will take 10-15 minutes, go make a pot of coffee. The output will give you an idea of what's going on. Eventually, you'll see:
 
-```
+```bash
 Successfully built 77c75d57ad66
 Successfully tagged cerc/watcher-erc20:local
 ```
@@ -55,13 +55,13 @@ If you run into an error, it will likely be compiling foundry, which uses a lot 
 
 Next, let's deploy this stack:
 
-```
+```bash
 laconic-so --stack erc20 deploy up
 ```
 
 The output will looks like this:
 
-```
+```bash
 [+] Running 23/23
  ⠿ ipld-eth-db Pulled                                                                                                                   18.4s
    ⠿ 213ec9aee27d Already exists                                                                                                         0.0s
@@ -104,13 +104,13 @@ Let's take stock of what just happened, we:
 
 Take a look at all the running docker containers:
 
-```
+```bash
 docker ps
 ```
 
 You should see 6 containers:
 
-```
+```bash
 CONTAINER ID   IMAGE                              COMMAND                  CREATED         STATUS                     PORTS                                            NAMES
 605ccf0e4461   cerc/watcher-erc20:local           "docker-entrypoint.s…"   6 minutes ago   Up 5 minutes (unhealthy)   0.0.0.0:3002->3001/tcp, 0.0.0.0:9002->9001/tcp   laconic-30c27a9be20b005274dfc23fd7e90256-erc20-watcher-1
 0a00a3a1bcd6   cerc/ipld-eth-db:local             "/app/startup_script…"   6 minutes ago   Up 5 minutes                                                                laconic-30c27a9be20b005274dfc23fd7e90256-migrations-1
@@ -129,24 +129,25 @@ Great so now we have the core stack up and running, let's deploy an ERC20 token.
 
 First, we need the `CONTAINER ID` of the ERC20 watcher:
 
-```
+```bash
 docker ps | grep "watcher-erc20"
 ```
 
 Using the `ID` from the example above, we'll export the `CONTAINER_ID` for use throughout the rest of the tutorial:
 
-```
+```bash
 export CONTAINER_ID=605ccf0e4461
 ```
 
 Next, we can deploy an ERC20 token (currency symbol GLD):
-```
+
+```bash
 docker exec $CONTAINER_ID yarn token:deploy:docker
 ```
 
 and your output should look like:
 
-```
+```bash
 yarn run v1.22.19
 $ hardhat --network docker token-deploy
 Downloading compiler 0.8.0
@@ -158,19 +159,19 @@ Done in 157.39s.
 
 Great, now that we've deployed the GLD token, you'll want to export its address for later use:
 
-```
+```bash
 export TOKEN_ADDRESS=0x0Dcb65938A483547835e2ebB4FC6cBf7AEe77550
 ```
 
 Get your primary account address with:
 
-```
+```bash
 docker exec $CONTAINER_ID yarn account:docker
 ```
 
 and the following output:
 
-```
+```bash
 yarn run v1.22.19
 $ hardhat --network docker account
 0x33AF7AB219be47367dfa5A3739e6B9CA1c40cDC8
@@ -179,19 +180,19 @@ Done in 21.63s.
 
 export that address to your shell:
 
-```
+```bash
 export PRIMARY_ADDRESS=0x33AF7AB219be47367dfa5A3739e6B9CA1c40cDC8
 ```
 
 To get the latest block hash at any time, run:
 
-```
+```bash
 docker exec $CONTAINER_ID yarn block:latest:docker
 ```
 
 for an output like:
 
-```
+```bash
 yarn run v1.22.19
 $ hardhat --network docker block-latest
 Block Number: 12783
@@ -234,7 +235,7 @@ export RECIPIENT_ADDRESS=0x988a070c97D33a9Dfcc134df5628b77e8B5214ad
 
 Head on over to [http://localhost:3002/graphql](http://localhost:3002/graphql) and paste the following (but with your variables):
 
-```
+```graphql
 query {
   name(
     blockHash: "0xb7b4b65dd5fe3800a6c38cb8a26249bbb82041d7e0b347a853b73efc7a473b75"
@@ -270,7 +271,7 @@ query {
 
 then click "Run" and you'll see a response like this:
 
-```
+```json
 {
   "data": {
     "name": {
@@ -307,7 +308,7 @@ A lot has happened thus far, so let's review; we've:
 
 Next we'll use the playground to query account balances:
 
-```
+```graphql
 query {
   fromBalanceOf: balanceOf(
       # latest block hash
@@ -338,7 +339,7 @@ query {
 
 the primary address should have `value` 1000000000000000000000 and the recipient address should have 0:
 
-```
+```json
 {
   "data": {
     "fromBalanceOf": {
@@ -361,12 +362,13 @@ Note also that the recipient address also does not yet have a `cid` or `ipldBloc
 
 Let's send it some GLD!
 
-```
+```bash
 docker exec $CONTAINER_ID yarn token:transfer:docker --token $TOKEN_ADDRESS --to $RECIPIENT_ADDRESS --amount 100000000 
 ```
 
 You'll see a familiar output:
-```
+
+```bash
 yarn run v1.22.19
 $ hardhat --network docker token-transfer --token 0x0Dcb65938A483547835e2ebB4FC6cBf7AEe77550 --to 0x988a070c97D33a9Dfcc134df5628b77e8B5214ad --amount 100000000
 Nothing to compile
@@ -379,13 +381,13 @@ Done in 26.12s.
 
 Now get the latest block hash:
 
-```
+```bash
 docker exec $CONTAINER_ID yarn block:latest:docker 
 ```
 
 and go back to the GraphQL playground. If you've changed nothing since the last query, update only the latest block hash and run the query again, you'll see the updated account balances:
 
-```
+```json
 {
   "data": {
     "fromBalanceOf": {
@@ -440,6 +442,6 @@ Voila! You've successfully stood up the core Laconic stack, deployed an ERC20 to
 
 Tear down your docker containers with:
 
-```
-./laconic-so --stack erc20 deploy down
+```bash
+laconic-so --stack erc20 deploy down
 ```
