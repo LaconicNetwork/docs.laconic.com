@@ -149,6 +149,10 @@ services:
   # Starts the claims-watcher server
   claims-watcher-server:
     image: cerc/watcher-azimuth:local
+    # see the censures-watcher-server and
+    # azimuth-watcher-server as examples.
+    # each watcher (below) will also need
+    # configuring
   
   # Starts the conditional-star-release-watcher server
   conditional-star-release-watcher-server:

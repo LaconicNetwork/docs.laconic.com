@@ -86,7 +86,7 @@ The README contains all the necessary instructions for configuring and serving y
 
 ### Using Stack Orchestrator
 
-Our stack orchestration tool, `laconic-so` is what we now use to deploy watchers. It makes it easier to package your app from back to front and deliver it to your users in a more decentralized way than is typically done. In the "Creating a stack guide", Azimuth will provide a useful example of packaging your watcher into an SO stack.
+Our stack orchestration tool, `laconic-so` is what we now use to deploy watchers. It makes it easier to package your app from back to front and deliver it to your users in a more decentralized way than is typically done. In the "Creating a stack" guide, Azimuth will provide a useful example of packaging your watcher into an SO stack.
 
 ### RPC and GQL endpoints
 
