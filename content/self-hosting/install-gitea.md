@@ -5,7 +5,7 @@ draft: false
 weight: 1 
 ---
 
-In the Gitea x Laconicd stack demo, we used the local Gitea instance to publish NPM packages, which were consumed by the build for a basic `laconicd` fixturenet. That quick demo intentionally omitted some details about the Gitea self-hosting solution that we will cover below.
+In the Gitea x Laconicd stack demo, we used the local Gitea instance to publish NPM packages, which were consumed by the build for a basic `laconicd` fixturenet. That quick demo intentionally omitted some details about the Gitea self-hosting solution that we will cover below. TODO: figure out better deduplication with the LxD demo.
 
 ### Build and deploy
 

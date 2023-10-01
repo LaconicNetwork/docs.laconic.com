@@ -19,7 +19,7 @@ These pre-requisites are required:
 
 **Note:** if installing docker-compose via package manager (as opposed to Docker Desktop), you must install the plugin, e.g., on Linux:
 
-```
+```bash
 mkdir -p ~/.docker/cli-plugins
 curl -SL https://github.com/docker/compose/releases/download/v2.11.2/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
 chmod +x ~/.docker/cli-plugins/docker-compose
@@ -27,21 +27,21 @@ chmod +x ~/.docker/cli-plugins/docker-compose
 
 Next, install the latest release of Stack Orchestrator
 
-```
+```bash
 curl -L -o laconic-so https://github.com/cerc-io/stack-orchestrator/releases/latest/download/laconic-so
 ```
 
 Give it permission:
-```
+```bash
 chmod +x laconic-so
 ```
 
 Verify operation:
-```
+```bash
 ./laconic-so version
 ```
 
-```
+```bash
 Version: 1.1.0-f55a14b-202308221833
 ```
 

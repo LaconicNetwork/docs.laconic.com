@@ -12,7 +12,7 @@ The following tutorial explains the steps to run a laconicd fixturenet with CLI 
 - https://github.com/cerc-io/laconic-registry-cli
 - https://github.com/cerc-io/laconic-console
 
-Now, with Stack Orchestrator, it is a few quick commands. Additionally, the `docker` and `docker compose` integration on the back-end allows the stack to easily persist, facilitating workflows.
+Now, with Stack Orchestrator, it is a few quick commands. Additionally, the `docker` and `docker compose` integration on the back-end allows the stack to easily persist.
 
 ### Setup the laconic fixturenet stack
 

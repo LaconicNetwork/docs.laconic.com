@@ -5,11 +5,13 @@ draft: false
 weight: 3
 ---
 
-The Azimuth stack demonstrates a full example using watcher - the only thing missing is the RPC and GQL endpoints for `ipld-eth-server`.
+The Azimuth stack demonstrates an example of creating a stack for a watcher. You'll need to provide RPC and GQL endpoints for `ipld-eth-server` in a `.env` file (see below).
 
-### stack.yaml
+Doing this for your new stack currently requires [forking stack orchestrator and using developer mode to add a stack](https://github.com/cerc-io/stack-orchestrator/blob/main/docs/adding-a-new-stack.md). The following outlines these
 
-Starting with the `stack.yml`, we see:
+### Stack definition
+
+Starting with the `stack.yml`, we see which repo to clone, container to build, and compose pod to run:
 
 ```yaml
 version: "1.0"
@@ -24,7 +26,7 @@ pods:
 
 ### Dockerfile
 
-Note: the line `yarn && yarn build` would, in most webapp situations, be replaced by `yarn global add @some-registry/my-watcher`. This process is documented in the "Self Hosting" and "WebApp" sections of the documentation.
+Note: the line `yarn && yarn build` would, in most webapp situations, be replaced by `yarn global add @some-registry/my-watcher`. This process is documented in the "Packing a WebApp" guide.
 
 The single container is built from this Dockerfile:
 
@@ -223,7 +225,12 @@ A handful of config files are found [here](https://github.com/cerc-io/stack-orch
 ```bash
 ls app/data/config/watcher-azimuth
 ```
-
 ```bash
 gateway-watchers.json  merge-toml.js  start-server.sh  watcher-config-template.toml  watcher-params.env
 ```
+
+Importantly, update `watcher-params.env` with your RPC and GQL endpoints.
+
+### Build and deploy
+
+Having configured everything correctly, the familiar `build, setup, deploy` pipeline of stack orchestrator applies.

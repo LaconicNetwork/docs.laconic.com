@@ -1,5 +1,5 @@
 ---
-title: "A Package Registry"
+title: "Package Registry"
 date: 2022-12-30T09:19:28-05:00
 draft: false
 weight: 3
@@ -11,7 +11,4 @@ We saw in previous tutorials: 1) using an env var to pull a package from the Lac
 
 Here, we'll dive a bit more into the features of the registry and how we use it.
 
-
-
-- a GitHub repo (active codebase) -> publishes packages to our Gitea
-
+TODO
