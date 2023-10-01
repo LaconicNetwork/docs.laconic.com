@@ -7,11 +7,11 @@ weight: 2
 
 Depending on your goals, Gitea can be used simply as a mirror, or you can go all-in and migrate completely over. As already mentioned, we are in the process of the doing the latter, though we started this process with mirroring some GitHub repos in Gitea. A full transition involves understanding the nuances in the process, most of which we've experienced, and is documented below.
 
-### Setup you org
+### Setup your org
 
 Since the defaults are setup for `cerc-io`, you'll want to install Gitea like previously described but modify [this line](https://github.com/cerc-io/hosting/blob/4bdf0f7d25756f753303ddb436da7dded25502e9/gitea/initialize-gitea.sh#L7) prior to `build-containers`. It should match exactly the GitHub organization you are mirroring or migrating from.
 
-#### Mirror repositories
+### Mirror repositories
 
 At this point, the Gitea console gives you the ability to select any repo and mirror it. Select all your core repos and mirror them. Not only do you now have an up-to-date backup for when GitHub goes down, it is also possible to run workflows separately (or alongside) existing GitHub workflows. This not only provides redundancy, but independence as well (anyone can run your stack with relative ease).
 
