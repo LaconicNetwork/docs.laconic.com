@@ -73,7 +73,7 @@ This will create a directory containing the generated code at the path provided 
 
 ### GraphQL Queries
 
-The code generator create files that, with a little bit of configuration, are able to run out of the box. This framework is an alternative to [The Graph](https://thegraph.com).
+The code generator created files that, with a little bit of configuration, are able to run out of the box. This framework is an alternative to [The Graph](https://thegraph.com).
 
 ```bash
 ls
