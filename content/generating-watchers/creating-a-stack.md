@@ -5,9 +5,10 @@ draft: false
 weight: 3
 ---
 
-The Azimuth stack demonstrates an example of creating a stack for a watcher. You'll need to provide RPC and GQL endpoints for `ipld-eth-server` in a `.env` file (see below).
+Azimuth demonstrates an example of creating a stack for a watcher. You'll need to provide RPC and GQL endpoints for `ipld-eth-server` in a `.env` file (see below).
 
-Doing this for your new stack currently requires [forking stack orchestrator and using developer mode to add a stack](https://github.com/cerc-io/stack-orchestrator/blob/main/docs/adding-a-new-stack.md). The following outlines these
+Doing this for your new stack currently requires [forking stack orchestrator and using developer mode to add a stack](https://github.com/cerc-io/stack-orchestrator/blob/main/docs/adding-a-new-stack.md). 
+
 
 ### Stack definition
 
