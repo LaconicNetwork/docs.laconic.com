@@ -115,6 +115,14 @@ Like this:
 - `kubie ctx default`
 - `kubectl.yaml`, used by SO --> how did it get to `/home/so/.kube/config-mito-lx-cad.yaml` 
 - basic commands
+
+```
+kubectl get secrets --all-namespaces
+kubectl get clusterissuer
+kubectl get certificates
+```
+
+
 - annotations
 
 
