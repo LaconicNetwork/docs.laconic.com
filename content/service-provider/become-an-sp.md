@@ -137,19 +137,19 @@ ansible-galaxy install -f -p roles -r roles/requirements.yml
 6. Configure firewalld and nginx for hosts
 
 ```
-ansible-playbook -i hosts site.yml --tags=firewalld,nginx
+ansible-playbook -i hosts site.yml --tags=firewalld,nginx --user <remote_user>
 ```
 
 7. Install Stack Orchestrator for hosts
 
 ```
-ansible-playbook -i hosts site.yml --tags=so --limit=so
+ansible-playbook -i hosts site.yml --tags=so --limit=so --user <remote_user>
 ```
 
 8. Deploy k8s
 
 ```
-ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad
+ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad --user <remote_user>
 ```
 
 9. Install k8s helper tools
