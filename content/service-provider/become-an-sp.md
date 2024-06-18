@@ -7,6 +7,8 @@ weight: 1
 
 ## Select and boot servers
 
+Using your choice of cloud provider or bare metal. These are minimum suggesting specifications:
+
 - daemon (4G RAM, 25G Disk)
 - control (16G RAM, 300G Disk)
 - worker (16G RAM, 300G Disk)
@@ -15,9 +17,12 @@ weight: 1
 
 This is personal preference. At a minimum, create a new user on each machine and disable root access.
 
+### Mac notes
+TODO
+
 ## Initial Ubuntu base setup
 
-**On all machines:**
+**On all remote machines:**
 
 1. Set unique hostnames 
 
@@ -630,7 +635,7 @@ echo $RECORD_ID
 rm -f $RECORD_FILE $CONFIG_FILE
 ```
 
-Now, anytime a release is created, a new set oof records will be published to the Laconic Registry, and eventually picked up by the `deployer`, which will target the k8s cluster that we setup.
+Now, anytime a release is created, a new set of records will be published to the Laconic Registry, and eventually picked up by the `deployer`, which will target the k8s cluster that we setup.
 
 ## Notes and debugging
 
