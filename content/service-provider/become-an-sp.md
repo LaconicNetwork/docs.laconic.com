@@ -7,7 +7,7 @@ weight: 1
 
 ## Select and boot servers
 
-Using your choice of cloud provider or bare metal. These are minimum suggesting specifications:
+Using your choice of cloud provider or bare metal. These are minimum suggested specifications:
 
 - daemon (4G RAM, 25G Disk)
 - control (16G RAM, 300G Disk)
