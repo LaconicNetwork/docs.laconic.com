@@ -19,42 +19,42 @@ This is personal preference. At a minimum, create a new user on each machine and
 
 **On all machines:**
 
-Set unique hostnames 
+1. Set unique hostnames 
 
 ```
 hostnamectl set-hostname changeme
 ```
 
-In this example, we've named each machine like so:
+In the following example, we've named each machine like so:
 ```
 lx-daemon               23.111.69.218
 lx-cad-cluster-worker   23.111.78.182
 lx-cad-cluster-control  23.111.78.179
 ```
 
-And they are mapped to each IP via A records.
+See below for the full list of DNS records to be configured.
 
-Next, update base packages:
+2. Next, update base packages:
 
 ```
 apt update && apt upgrade -y
 apt autoremove
 ```
 
-Install additional packages:
+3. Install additional packages:
 
 ```
 apt install -y doas zsh tmux git jq acl curl wget netcat fping rsync htop iotop iftop tar less firewalld sshguard wireguard iproute2 iperf3 zfsutils-linux net-tools ca-certificates gnupg
 ```
 
-Verify status of firewalld and enable sshguard:
+4. Verify status of firewalld and enable sshguard:
 
 ```
 systemctl enable --now firewalld
 systemctl enable --now sshguard
 ```
 
-Disable and Remove snapd
+5. Disable and remove snapd
 
 ```
 systemctl disable snapd.service
@@ -69,13 +69,13 @@ rm -rf ~/snap /snap /var/snap /var/lib/snapd
 
 ## Daemon-only packages (do not install on the worker and control nodes)
 
-Install nginx and certbot:
+1. Install nginx and certbot:
 
 ```
 apt install -y nginx certbot python3-certbot-nginx
 ```
 
-Install Docker:
+2. Install Docker:
 
 ```
 install -m 0755 -d /etc/apt/keyrings
@@ -89,29 +89,112 @@ echo \
 apt update -y && apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-
 ## Get a domain
 
 In this example, we are using audubon.app and its [nameservers point to Digital Ocean](https://docs.digitalocean.com/products/networking/dns/getting-started/dns-registrars/). You'll need to do the same.
 
 
-## Ansible
+## Ansible Playbook to setup a simple k8s cluster
 
-1. On another machine (e.g., your laptop), install ansible and its utilities:
-- https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
+1. On another machine (e.g., your laptop), install ansible via virtual env:
 
-2. Create a gpg key, configure the vault, and add your key to it.
+```
+sudo apt install python3-pip python3.10-venv
+python3.10 -m venv ~/.local/venv/ansible
+source ~/.local/venv/ansible/bin/activate
+pip install ansible
+ansible --version
+```
 
-3. Clone the template repo and modify the domain, IP address, and names as shows in [this commit](https://git.vdb.to/cerc-io/service-provider-template/commit/32e1ad0bd73f0754c0978c96eaee526fa841ddb4)
+2. Clone repo and enter the directory:
+
+```
+git clone https://git.vdb.to/cerc-io/service-provider-template.git
+cd service-provider-template/
+```
+
+3. Update to the template
+
+- review [this commit](https://git.vdb.to/cerc-io/service-provider-template/commit/32e1ad0bd73f0754c0978c96eaee526fa841ddb4) and modify the domain, IP, and hostnames, etc., to match your setup.
+
+4. Install required roles:
+
+```
+ansible-galaxy install -f -p roles -r roles/requirements.yml
+```
+
+5. Generate token for the cluster (this assumes ansible vault has been setup)
+
+```
+./roles/k8s/files/token-vault.sh ./group_vars/lx_cad/k8s-vault.yml
+```
+
+6. Configure firewalld and nginx for hosts
+
+```
+ansible-playbook -i hosts site.yml --tags=firewalld,nginx
+```
+
+7. Install Stack Orchestrator for hosts
+
+```
+ansible-playbook -i hosts site.yml --tags=so --limit=so
+```
+
+8. Deploy k8s
+
+```
+ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad
+```
+
+9. Install k8s helper tools
+
+- on Linux systems:
+```
+sudo ~/lx-cad-deploy/roles/k8s/files/get-kube-tools.sh
+```
+
+- on a Mac:
+```
+brew install kubie kubectl yq helm
+```
+
+10. Verify cluster creation
+
+```
+kubie ctx lx-cad
+kubectl get nodes -o wide
+```
 
 ## Configure DNS
 
 Like this:
 
+|  Type  |            Hostname                |            Value                   |
+|--------|------------------------------------|------------------------------------|
+| A      | lx-daemon.audubon.app              | 23.111.69.218                      |
+| A      | lx-cad-cluster-worker.audubon.app  | 23.111.78.182                      |
+| A      | lx-cad-cluster-control.audubon.app | 23.111.78.179                      |
+| NS     | audubon.app                        | ns1.digitalocean.com.              |
+| NS     | audubon.app                        | ns2.digitalocean.com.              |
+| NS     | audubon.app                        | ns3.digitalocean.com.              |
+| CNAME  | www.audubon.app                    | audubon.app.                       |
+| CNAME  | laconicd.audubon.app               | lx-daemon.audubon.app.             |
+| CNAME  | lx-backend.audubon.app             | lx-daemon.audubon.app.             |
+| CNAME  | lx-console.audubon.app             | lx-daemon.audubon.app.             |
+| CNAME  | lx-cad.audubon.app                 | lx-cad-cluster-worker.audubon.app. |
+| CNAME  | *.lx-cad.audubon.app               | lx-cad-cluster-worker.audubon.app. |
+| CNAME  | pwa.audubon.app                    | lx-cad-cluster-worker.audubon.app. |
+| CNAME  | *.pwa.audubon.app                  | lx-cad-cluster-worker.audubon.app. |
+
+In DigitalOcean, it looks like:
+
 ![sp-dns](/images/dns-sp-docs.png)
 
 
 ## Kubernetes
+TODO
+
 - `kubie ctx default`
 - `kubectl.yaml`, used by SO --> how did it get to `/home/so/.kube/config-mito-lx-cad.yaml` 
 - basic commands
@@ -381,3 +464,16 @@ We now have:
 - pvc
 - 413 request too large
 - using `container-registry.pwa.audubon.app/laconic-registry` or `container-registry.pwa.audubon.app` seems to both work, TODO, investigate
+
+
+### DNS Secret example
+
+```
+apiVersion: v1
+data:
+  access-token: XXX
+kind: Secret
+metadata:
+  name: someprovider-dns
+  namespace: cert-manager
+```
