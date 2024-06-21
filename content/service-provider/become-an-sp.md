@@ -186,6 +186,16 @@ kubectl get certificates
 
 TODO output of each command
 
+### Set ingress annotations
+
+```
+kubectl annotate ingress laconic-26cc70be8a3db3f4-ingress nginx.ingress.kubernetes.io/proxy-body-size=0
+kubectl annotate ingress laconic-26cc70be8a3db3f4-ingress nginx.ingress.kubernetes.io/proxy-read-timeout=600
+kubectl annotate ingress laconic-26cc70be8a3db3f4-ingress nginx.ingress.kubernetes.io/proxy-send-timeout=600
+```
+
+where `laconic-26cc70be8a3db3f4` is your unique `cluster-id`
+
 ## Configure DNS
 
 Like this:
