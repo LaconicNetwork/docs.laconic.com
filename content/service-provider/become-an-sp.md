@@ -84,13 +84,13 @@ useradd so
 - add the ssh key used for gitea access to the `ssh-agent`
 
 
-1. Install nginx and certbot:
+2. Install nginx and certbot:
 
 ```
 apt install -y nginx certbot python3-certbot-nginx
 ```
 
-2. Install Docker:
+3. Install Docker:
 
 ```
 install -m 0755 -d /etc/apt/keyrings
@@ -182,6 +182,8 @@ kubectl get nodes -o wide
 kubectl get secrets --all-namespaces
 kubectl get clusterissuer
 kubectl get certificates
+kubectl get ds --all-namespaces
+
 ```
 
 TODO output of each command
