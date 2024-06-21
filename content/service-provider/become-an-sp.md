@@ -162,6 +162,8 @@ ansible-playbook -i hosts site.yml --tags=so --limit=so --user <remote_user>
 ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad --user <remote_user>
 ```
 
+Note: to undeploy, add `--extra-vars 'k8s_action=destroy'` to the above command
+
 9. Install k8s helper tools
 
 - on Linux systems:
