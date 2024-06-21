@@ -391,11 +391,11 @@ After publishing sample records, you'll have a `bondId`. Also retreive your `use
 
 #### Nginx
 
-TODO: sync with Shane
-test console.myurl.com
+If your initial ansible configuration was modified correctly, there is nothing to do; nginx will just work.
 
 ### Deploy deployer back end
 
+This service listens for `ApplicationDeploymentRequest`'s in the Laconic Registry and automatically deploys an application to the k8s cluster, eliminating the manual steps just taken with the test app.
 
 ```
 laconic-so --stack webapp-deployer deploy init --output webapp-deployer.spec
@@ -658,10 +658,8 @@ rm -f $RECORD_FILE $CONFIG_FILE
 
 Now, anytime a release is created, a new set of records will be published to the Laconic Registry, and eventually picked up by the `deployer`, which will target the k8s cluster that we setup.
 
-## Notes and debugging
+## Notes, debugging, unknowns
 
-- pvc
-- 413 request too large
 - using `container-registry.pwa.audubon.app/laconic-registry` or `container-registry.pwa.audubon.app` seems to both work, TODO, investigate
 
 
