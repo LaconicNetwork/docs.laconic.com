@@ -72,7 +72,17 @@ apt purge -y snapd
 rm -rf ~/snap /snap /var/snap /var/lib/snapd
 ```
 
-## Daemon-only packages (do not install on the worker and control nodes)
+## Daemon-only (skip this step for worker and control nodes)
+
+1. Create a new user `so`:
+
+```
+useradd so
+```
+
+- add the ssh key of your local machine to `/home/so/.ssh/authorized_keys`
+- add the ssh key used for gitea access to the `ssh-agent`
+
 
 1. Install nginx and certbot:
 
@@ -167,9 +177,14 @@ brew install kubie kubectl yq helm
 10. Verify cluster creation
 
 ```
-kubie ctx lx-cad
+kubie ctx default
 kubectl get nodes -o wide
+kubectl get secrets --all-namespaces
+kubectl get clusterissuer
+kubectl get certificates
 ```
+
+TODO output of each command
 
 ## Configure DNS
 
@@ -204,11 +219,7 @@ TODO
 - `kubectl.yaml`, used by SO --> how did it get to `/home/so/.kube/config-mito-lx-cad.yaml` 
 - basic commands
 
-```
-kubectl get secrets --all-namespaces
-kubectl get clusterissuer
-kubectl get certificates
-```
+
 
 
 - annotations
