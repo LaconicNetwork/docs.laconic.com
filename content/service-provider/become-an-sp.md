@@ -49,7 +49,7 @@ apt autoremove
 3. Install additional packages:
 
 ```
-apt install -y doas zsh tmux git jq acl curl wget netcat fping rsync htop iotop iftop tar less firewalld sshguard wireguard iproute2 iperf3 zfsutils-linux net-tools ca-certificates gnupg
+apt install -y doas zsh tmux git jq acl curl wget netcat-traditional fping rsync htop iotop iftop tar less firewalld sshguard wireguard iproute2 iperf3 zfsutils-linux net-tools ca-certificates gnupg
 ```
 
 4. Verify status of firewalld and enable sshguard:
