@@ -230,14 +230,7 @@ In DigitalOcean, it looks like:
 TODO
 
 - `kubie ctx default`
-- `kubectl.yaml`, used by SO --> how did it get to `/home/so/.kube/config-mito-lx-cad.yaml` 
-- basic commands
-
-
-
-
-- annotations
-
+- `kubectl.yaml`, used by SO --> how did it get to `/home/so/.kube/config-mito-lx-cad.yaml`
 
 ## Certificates
 
@@ -392,6 +385,19 @@ If everything worked, after a couple minutes, you should see a pod for this weba
 Follow the instructions in [this document](https://git.vdb.to/cerc-io/stack-orchestrator/src/branch/main/docs/laconicd-with-console.md)
 
 After publishing sample records, you'll have a `bondId`. Also retreive your `userKey` (private key) which will be required later.
+
+#### Set name authority
+
+```
+laconic -c $LACONIC_CONFIG cns authority reserve my-org-name
+laconic -c $LACONIC_CONFIG cns authority bond set my-org-name 0e9176d854bc3c20528b6361aab632f0b252a0f69717bf035fa68d1ef7647ba7
+```
+
+where `my-org-name` needs to be added to the `package.json` of any application deployed under this namespace. For example:
+
+```
+"name": "@my-org-name/my-application"
+```
 
 #### Nginx
 
