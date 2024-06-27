@@ -17,9 +17,6 @@ Using your choice of cloud provider or bare metal. These are minimum suggested s
 
 This is personal preference. At a minimum, create a new user on each machine and disable root access.
 
-### Mac notes
-TODO
-
 ## Initial Ubuntu base setup
 
 **On all remote machines:**
@@ -111,7 +108,9 @@ In this example, we are using audubon.app and its [nameservers point to Digital 
 
 ## Ansible Playbook to setup a simple k8s cluster
 
-1. On another machine (e.g., your laptop), install ansible via virtual env:
+The steps in this section should be completed on a fourth seperate machine (e.g., your laptop). If it's a Mac, ensure you are logged in as the first user that was created.
+
+1. Install ansible via virtual env
 
 ```
 sudo apt install python3-pip python3.10-venv
@@ -121,7 +120,16 @@ pip install ansible
 ansible --version
 ```
 
-2. Clone repo and enter the directory:
+2. Install stack orchestrator
+
+```
+curl -L -o ~/bin/laconic-so https://git.vdb.to/cerc-io/stack-orchestrator/releases/download/latest/laconic-so
+chmod +x ~/bin/laconic-so
+laconic-so version
+```
+
+
+2. Clone repo and enter the directory
 
 ```
 git clone https://git.vdb.to/cerc-io/service-provider-template.git
@@ -132,17 +140,31 @@ cd service-provider-template/
 
 - review [this commit](https://git.vdb.to/cerc-io/service-provider-template/commit/32e1ad0bd73f0754c0978c96eaee526fa841ddb4) and modify the domain, IP, and hostnames, etc., to match your setup.
 
-4. Install required roles:
+4. Install required roles
 
 ```
 ansible-galaxy install -f -p roles -r roles/requirements.yml
 ```
 
-5. Generate token for the cluster (this assumes ansible vault has been setup)
+5. Setup ansible vault
+
+a) supply the following
+ - DO token
+ - PGP key
+ - SSH key
+
+whereby the latter 2 are on yout local machine.
+
+b) do the other thing
+
+6. Generate token for the cluster
 
 ```
 ./roles/k8s/files/token-vault.sh ./group_vars/lx_cad/k8s-vault.yml
 ```
+
+this creates your `kubeconfig.yml` in (where?)
+TODO, confirm the above.
 
 6. Configure firewalld and nginx for hosts
 
@@ -156,13 +178,13 @@ ansible-playbook -i hosts site.yml --tags=firewalld,nginx --user <remote_user>
 ansible-playbook -i hosts site.yml --tags=so --limit=so --user <remote_user>
 ```
 
-8. Deploy k8s
+8. Deploy k8s to hosts
 
 ```
 ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad --user <remote_user>
 ```
 
-Note: to undeploy, add `--extra-vars 'k8s_action=destroy'` to the above command
+**Note:** For debugging, to undeploy, add `--extra-vars 'k8s_action=destroy'` to the above command.
 
 9. Install k8s helper tools
 
@@ -185,10 +207,9 @@ kubectl get secrets --all-namespaces
 kubectl get clusterissuer
 kubectl get certificates
 kubectl get ds --all-namespaces
-
 ```
 
-TODO output of each command
+TODO tidy this section up
 
 ### Set ingress annotations
 
@@ -200,7 +221,11 @@ kubectl annotate ingress laconic-26cc70be8a3db3f4-ingress nginx.ingress.kubernet
 
 where `laconic-26cc70be8a3db3f4` is your unique `cluster-id`
 
+Note: this will be handled by SO in [this issue](https://git.vdb.to/cerc-io/stack-orchestrator/issues/849).
+
 ## Configure DNS
+
+As mentioned, point your nameservers to DO. Integration with other providers is possible; we use DO as an example. Recall that your DO token isadded to the ansible vault.
 
 Like this:
 
@@ -226,16 +251,13 @@ In DigitalOcean, it looks like:
 ![sp-dns](/images/dns-sp-docs.png)
 
 
-## Kubernetes
-TODO
+## Nginx and SSL
 
-- `kubie ctx default`
-- `kubectl.yaml`, used by SO --> how did it get to `/home/so/.kube/config-mito-lx-cad.yaml`
-
-## Certificates
+If your initial ansible configuration was modified correctly; nginx and SSL will work. The k8s cluster was created with the features and settings for these components to be automated.
 
 ## Stack Orchestrator
-- installed on the daemon machine
+- installed on the daemon machine for use by the deployer
+- installed on your local machine
 
 ### Deploy container registry
 
@@ -399,9 +421,6 @@ where `my-org-name` needs to be added to the `package.json` of any application d
 "name": "@my-org-name/my-application"
 ```
 
-#### Nginx
-
-If your initial ansible configuration was modified correctly, there is nothing to do; nginx will just work.
 
 ### Deploy deployer back end
 
