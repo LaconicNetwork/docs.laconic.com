@@ -685,7 +685,9 @@ echo $RECORD_ID
 rm -f $RECORD_FILE $CONFIG_FILE
 ```
 
-Now, anytime a release is created, a new set of records will be published to the Laconic Registry, and eventually picked up by the `deployer`, which will target the k8s cluster that we setup.
+Now, anytime a release is created, a new set of records will be published to the Laconic Registry, and eventually picked up by the `deployer`, which will target the k8s cluster that was setup.
+
+**Note:** to override stack orchestrator's default webapp build process, put a file named `build-webapp.sh` in the root of your webapp repo.
 
 ## Notes, debugging, unknowns
 
