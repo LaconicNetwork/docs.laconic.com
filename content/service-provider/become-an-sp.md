@@ -171,8 +171,7 @@ b) do the other thing
 ./roles/k8s/files/token-vault.sh ./group_vars/lx_cad/k8s-vault.yml
 ```
 
-this creates your `kubeconfig.yml` in (where?)
-TODO, confirm the above.
+
 
 6. Configure firewalld and nginx for hosts
 
@@ -183,10 +182,12 @@ ansible-playbook -i hosts site.yml --tags=firewalld,nginx --user <remote_user>
 7. Install Stack Orchestrator for hosts
 
 ```
-ansible-playbook -i hosts site.yml --tags=so --limit=so --user <remote_user>
+ansible-playbook -i hosts site.yml --tags=so --limit=so --user so
 ```
 
 8. Deploy k8s to hosts
+
+This step creates the cluster and puts the `kubeconfig.yml` at on your local machine here: `~/.kube/config-default.yaml`. You'll need it for later.
 
 ```
 ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad --user <remote_user>
