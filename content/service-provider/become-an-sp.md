@@ -77,9 +77,9 @@ rm -rf ~/snap /snap /var/snap /var/lib/snapd
 adduser so
 ```
 
-2. Add the ssh pub key of your local machine (the place from which you'll run ansible) to `/home/so/.ssh/authorized_keys`
+2. Add an ssh pub key of your local machine (the place from which you'll run ansible) to `/home/so/.ssh/authorized_keys`
 
-3. Add an ssh priv key with read access to git.vdb.to to `/home/so/.ssh/id_rsa`
+3. Add an ssh priv key that has read access for git.vdb.to to `/home/so/.ssh/id_rsa`
 
 4. Add the following lines to `/home/so/.bashrc`
 
@@ -87,6 +87,8 @@ adduser so
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id_rsa
 ```
+
+Note: steps 3 & 4 should be removed; without it `/usr/bin/git ls-remote git@git.vdb.to:cerc-io/stack-orchestrator.git` fails with "Permission denied".
 
 5. Install nginx and certbot:
 
