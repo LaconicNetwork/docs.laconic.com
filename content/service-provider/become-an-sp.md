@@ -74,7 +74,7 @@ rm -rf ~/snap /snap /var/snap /var/lib/snapd
 1. Create a new user `so`:
 
 ```
-useradd so
+adduser so
 ```
 
 - add the ssh key of your local machine to `/home/so/.ssh/authorized_keys`
