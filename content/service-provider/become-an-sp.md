@@ -211,18 +211,6 @@ kubectl get ds --all-namespaces
 
 TODO tidy this section up
 
-### Set ingress annotations
-
-```
-kubectl annotate ingress laconic-26cc70be8a3db3f4-ingress nginx.ingress.kubernetes.io/proxy-body-size=0
-kubectl annotate ingress laconic-26cc70be8a3db3f4-ingress nginx.ingress.kubernetes.io/proxy-read-timeout=600
-kubectl annotate ingress laconic-26cc70be8a3db3f4-ingress nginx.ingress.kubernetes.io/proxy-send-timeout=600
-```
-
-where `laconic-26cc70be8a3db3f4` is your unique `cluster-id`
-
-Note: this will be handled by SO in [this issue](https://git.vdb.to/cerc-io/stack-orchestrator/issues/849).
-
 ## Configure DNS
 
 As mentioned, point your nameservers to DO. Integration with other providers is possible; we use DO as an example. Recall that your DO token isadded to the ansible vault.
@@ -366,6 +354,8 @@ where the `auth:` field is the output of:
 echo -n "so-reg-user:pXDwO5zLU7M88x3aA" | base64 -w0
 ```
 
+Note: on a Mac, omit the trailing `-w0`
+
 Finally, add the container registry credentials as a secret available to the cluster:
 
 ```
@@ -380,7 +370,7 @@ laconic-so deployment --dir container-registry start
 
 Check the logs:
 ```
-TODO
+laconic-so deployment --dir container-registry start
 ```
 
 With a successful container registry deployed, it is now possible to deploy webapps to the cluster
@@ -395,11 +385,35 @@ explain
 ```
 laconic-so deploy-webapp create --kube-config /home/so/.kube/config-mito-lx-cad.yaml --image-registry container-registry.pwa.audubon.app --deployment-dir webapp-k8s-deployment --image cerc/test-progressive-web-app:local --url https://my-test-app.pwa.audubon.app --env-file ~/cerc/test-progressive-web-app/.env
 ```
-explain
+
+You built a docker image on you local machine. It needs to be pushed to the docker registry that you just created and is running as a pod in the cluster:
+
+```
+docker login --username so-reg-user --password pXDwO5zLU7M88x3aA
+```
+
+All the previous htpasswd configuration is to enable the deployer (below) to build and push images to the docker registry.
+
+### Set ingress annotations
+
+1. replace `26cc70be8a3db3f4` with your `cluster-id` in the following commands:
+```
+kubectl annotate ingress laconic-26cc70be8a3db3f4-ingress nginx.ingress.kubernetes.io/proxy-body-size=0
+kubectl annotate ingress laconic-26cc70be8a3db3f4-ingress nginx.ingress.kubernetes.io/proxy-read-timeout=600
+kubectl annotate ingress laconic-26cc70be8a3db3f4-ingress nginx.ingress.kubernetes.io/proxy-send-timeout=600
+```
+
+Note: this will be handled automatically by stack orchestrator in [this issue](https://git.vdb.to/cerc-io/stack-orchestrator/issues/849).
+
+Next, push the image that you just built for the example webapp
 ```
 laconic-so deployment --dir webapp-k8s-deployment push-images
+```
+And finally, start the deployment
+```
 laconic-so deployment --dir webapp-k8s-deployment start
 ```
+
 If everything worked, after a couple minutes, you should see a pod for this webapp and the webapp running at https://my-test-app.pwa.audubon.app
 
 ### Deploy the laconicd registry and console
