@@ -77,17 +77,24 @@ rm -rf ~/snap /snap /var/snap /var/lib/snapd
 adduser so
 ```
 
-- add the ssh key of your local machine to `/home/so/.ssh/authorized_keys`
-- add the ssh key used for gitea access to the `ssh-agent`
+2. Add the ssh pub key of your local machine (the place from which you'll run ansible) to `/home/so/.ssh/authorized_keys`
 
+3. Add an ssh priv key with read access to git.vdb.to to `/home/so/.ssh/id_rsa`
 
-2. Install nginx and certbot:
+4. Add the following lines to `/home/so/.bashrc`
+
+```
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_rsa
+```
+
+5. Install nginx and certbot:
 
 ```
 apt install -y nginx certbot python3-certbot-nginx
 ```
 
-3. Install Docker:
+6. Install Docker:
 
 ```
 install -m 0755 -d /etc/apt/keyrings
@@ -151,7 +158,6 @@ ansible-galaxy install -f -p roles -r roles/requirements.yml
 a) supply the following
  - DO token
  - PGP key
- - SSH key
 
 whereby the latter 2 are on yout local machine.
 
