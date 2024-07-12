@@ -460,10 +460,18 @@ Modify the contents of `webapp-deployer`
 
 ```
 DEPLOYMENT_DNS_SUFFIX="pwa.audubon.app"
+
+# this should match the name authority reserved above
 DEPLOYMENT_RECORD_NAMESPACE="mito"
+
+# url of the deployed docker image registry
 IMAGE_REGISTRY="container-registry.pwa.audubon.app"
+
+# credentials from the htpasswd section above
 IMAGE_REGISTRY_USER="so-reg-user"
 IMAGE_REGISTRY_CREDS="pXDwO5zLU7M88x3aA"
+
+# configs
 CLEAN_DEPLOYMENTS=false
 CLEAN_LOGS=false
 CLEAN_CONTAINERS=false
@@ -481,14 +489,6 @@ The latter looks like:
 
 ```
 services:
-  cns:
-    restEndpoint: 'https://lx-daemon.audubon.app:1317'
-    gqlEndpoint: 'https://lx-daemon.audubon.app/api'
-    userKey: e64ae9d07b21c62081b3d6d48e78bf44275ffe0575f788ea7b36f71ea559724b
-    bondId: ad9c977f4a641c2cf26ce37dcc9d9eb95325e9f317aee6c9f33388cdd8f2abb8
-    chainId: laconic_9000-1
-    gas: 9950000
-    fees: 500000aphoton
   registry:
     restEndpoint: 'https://lx-daemon.audubon.app:1317'
     gqlEndpoint: 'https://lx-daemon.audubon.app/api'
@@ -496,9 +496,8 @@ services:
     bondId: ad9c977f4a641c2cf26ce37dcc9d9eb95325e9f317aee6c9f33388cdd8f2abb8
     chainId: laconic_9000-1
     gas: 9950000
-    fees: 500000aphoton
+    fees: 500000photon
 ```
-Deduplication of the `cns` and `registry` fields will happen with `laconic2d` but are required for now)
 
 Start up the deployer
 ```
