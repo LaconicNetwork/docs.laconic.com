@@ -451,6 +451,7 @@ This service listens for `ApplicationDeploymentRequest`'s in the Laconic Registr
 
 ```
 laconic-so --stack webapp-deployer-backend setup-repositories
+laconic-so --stack webapp-deployer-backend build-containers
 laconic-so --stack webapp-deployer-backend deploy init --output webapp-deployer.spec
 laconic-so --stack webapp-deployer-backend deploy create --deployment-dir webapp-deployer --spec-file webapp-deployer.spec
 ```
