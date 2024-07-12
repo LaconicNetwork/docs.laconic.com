@@ -450,8 +450,9 @@ where `my-org-name` needs to be added to the `package.json` of any application d
 This service listens for `ApplicationDeploymentRequest`'s in the Laconic Registry and automatically deploys an application to the k8s cluster, eliminating the manual steps just taken with the test app.
 
 ```
-laconic-so --stack webapp-deployer deploy init --output webapp-deployer.spec
-laconic-so --stack webapp-deployer deploy create --deployment-dir webapp-deployer --spec-file webapp-deployer.spec
+laconic-so --stack webapp-deployer-backend setup-repositories
+laconic-so --stack webapp-deployer-backend deploy init --output webapp-deployer.spec
+laconic-so --stack webapp-deployer-backend deploy create --deployment-dir webapp-deployer --spec-file webapp-deployer.spec
 ```
 Modify the contents of `webapp-deployer`
 
@@ -501,7 +502,7 @@ Deduplication of the `cns` and `registry` fields will happen with `laconic2d` bu
 
 Start up the deployer
 ```
-laconic-so --stack webapp-deployer deployment start
+laconic-so deployment --dir webapp-deployer start
 ```
 
 Now, publishing records to the Laconic Registry will trigger deployments. See below for more details.
