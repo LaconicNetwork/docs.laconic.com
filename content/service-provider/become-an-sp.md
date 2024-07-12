@@ -455,9 +455,7 @@ laconic-so --stack webapp-deployer-backend build-containers
 laconic-so --stack webapp-deployer-backend deploy init --output webapp-deployer.spec
 laconic-so --stack webapp-deployer-backend deploy create --deployment-dir webapp-deployer --spec-file webapp-deployer.spec
 ```
-Modify the contents of `webapp-deployer`
-
-`config.env`:
+Modify the contents of `webapp-deployer/config.env`:
 
 ```
 DEPLOYMENT_DNS_SUFFIX="pwa.audubon.app"
@@ -482,8 +480,47 @@ CHECK_INTERVAL=5
 FQDN_POLICY="allow"
 ```
 
+Modify `webapp-deployer/spec.yml`:
+```
+stack: webapp-deployer-backend
+deploy-to: k8s
+kube-config: /home/so/.kube/config-default.yaml
+image-registry: container-registry.pwa.audubon.app/laconic-registry
+network:
+  ports:
+    server:
+     - '9555'
+  http-proxy:
+    - host-name: webapp-deployer-api.pwa.audubon.app
+      routes:
+        - path: '/'
+          proxy-to: server:9555
+volumes:
+  srv: 
+configmaps:
+  config: ./data/config
+annotations:
+  container.apparmor.security.beta.kubernetes.io/{name}: unconfined
+labels:
+  container.kubeaudit.io/{name}.allow-disabled-apparmor: "podman"
+security:
+  privileged: true
+
+resources:
+  containers:
+    reservations:
+      cpus: 4
+      memory: 8G
+    limits:
+      cpus: 6
+      memory: 16G
+  volumes:
+    reservations:
+      storage: 200G
+```
+
 In `webapp-deployer/data/config/` there needs to be two files:
-  1. `kube.yml` --> copied from `/home/so/.kube/config-mito-lx-cad.yaml`
+  1. `kube.yml` --> copied from `/home/so/.kube/config-default.yaml`
   2. `laconic.yml` --> with the details for talking to laconicd
 
 The latter looks like:
