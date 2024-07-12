@@ -434,8 +434,8 @@ After publishing sample records, you'll have a `bondId`. Also retreive your `use
 #### Set name authority
 
 ```
-laconic -c $LACONIC_CONFIG cns authority reserve my-org-name
-laconic -c $LACONIC_CONFIG cns authority bond set my-org-name 0e9176d854bc3c20528b6361aab632f0b252a0f69717bf035fa68d1ef7647ba7
+laconic registry authority reserve my-org-name
+laconic registry authority bond set my-org-name 0e9176d854bc3c20528b6361aab632f0b252a0f69717bf035fa68d1ef7647ba7
 ```
 
 where `my-org-name` needs to be added to the `package.json` of any application deployed under this namespace. For example:
@@ -537,8 +537,9 @@ services:
     fees: 500000photon
 ```
 
-Start up the deployer
+Push the image and start up the deployer
 ```
+laconic-so deployment --dir webapp-deployer push-images
 laconic-so deployment --dir webapp-deployer start
 ```
 
