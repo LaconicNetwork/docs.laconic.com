@@ -290,7 +290,7 @@ the `container-registry/spec.yaml` should look like:
 ```
 stack: container-registry
 deploy-to: k8s
-kube-config: /home/so/.kube/config-mito-lx-cad.yaml
+kube-config: /home/so/.kube/config-default.yaml
 network:
   ports:
     registry:
@@ -383,7 +383,7 @@ laconic-so build-webapp --source-repo ~/cerc/test-progressive-web-app
 ```
 explain
 ```
-laconic-so deploy-webapp create --kube-config /home/so/.kube/config-mito-lx-cad.yaml --image-registry container-registry.pwa.audubon.app --deployment-dir webapp-k8s-deployment --image cerc/test-progressive-web-app:local --url https://my-test-app.pwa.audubon.app --env-file ~/cerc/test-progressive-web-app/.env
+laconic-so deploy-webapp create --kube-config /home/so/.kube/config-default.yaml --image-registry container-registry.pwa.audubon.app --deployment-dir webapp-k8s-deployment --image cerc/test-progressive-web-app:local --url https://my-test-app.pwa.audubon.app --env-file ~/cerc/test-progressive-web-app/.env
 ```
 
 You built a docker image on you local machine. It needs to be pushed to the docker registry that you just created and is running as a pod in the cluster:
@@ -522,8 +522,8 @@ The latter looks like:
 ```
 services:
   registry:
-    restEndpoint: 'https://lx-daemon.audubon.app:1317'
-    gqlEndpoint: 'https://lx-daemon.audubon.app/api'
+    rpcEndpoint: 'https://lx-daemon.audubon.app:26657'
+    gqlEndpoint: 'https://lx-daemon.audubon.app:9473/api'
     userKey: e64ae9d07b21c62081b3d6d48e78bf44275ffe0575f788ea7b36f71ea559724b
     bondId: ad9c977f4a641c2cf26ce37dcc9d9eb95325e9f317aee6c9f33388cdd8f2abb8
     chainId: laconic_9000-1
@@ -549,7 +549,7 @@ laconic-so build-webapp --source-repo ~/cerc/webapp-deployment-status-ui
 ```
 explain
 ```
-laconic-so deploy-webapp create --kube-config /home/so/.kube/config-mito-lx-cad.yaml --image-registry container-registry.pwa.audubon.app --deployment-dir webapp-ui --image cerc/webapp-deployment-status-ui:local --url https://webapp-deployer-ui.pwa.audubon.app --env-file ~/cerc/webcerc/webapp-deployment-status-ui/.env
+laconic-so deploy-webapp create --kube-config /home/so/.kube/config-default.yaml --image-registry container-registry.pwa.audubon.app --deployment-dir webapp-ui --image cerc/webapp-deployment-status-ui:local --url https://webapp-deployer-ui.pwa.audubon.app --env-file ~/cerc/webcerc/webapp-deployment-status-ui/.env
 ```
 explain
 ```
@@ -750,16 +750,3 @@ Now, anytime a release is created, a new set of records will be published to the
 ## Notes, debugging, unknowns
 
 - using `container-registry.pwa.audubon.app/laconic-registry` or `container-registry.pwa.audubon.app` seems to both work, TODO, investigate
-
-
-### DNS Secret example
-
-```
-apiVersion: v1
-data:
-  access-token: XXX
-kind: Secret
-metadata:
-  name: someprovider-dns
-  namespace: cert-manager
-```
