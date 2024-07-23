@@ -145,8 +145,8 @@ The steps in this section should be completed on the `fake-laptop` machine.
 1. Install ansible via virtual env
 
 ```
-sudo apt install python3-pip python3.10-venv
-python3.10 -m venv ~/.local/venv/ansible
+sudo apt install python3-pip python3.12-venv
+python3.12 -m venv ~/.local/venv/ansible
 source ~/.local/venv/ansible/bin/activate
 pip install ansible
 ansible --version
