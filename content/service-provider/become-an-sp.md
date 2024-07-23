@@ -77,6 +77,8 @@ rm -rf ~/snap /snap /var/snap /var/lib/snapd
 adduser so
 ```
 
+- give this user sudoer perms TODO document steps
+
 2. Add an ssh pub key of your local machine (the place from which you'll run ansible) to `/home/so/.ssh/authorized_keys`
 
 3. Install nginx and certbot:
