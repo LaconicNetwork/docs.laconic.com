@@ -39,7 +39,6 @@ See below for the full list of DNS records to be configured.
 
 ```
 apt update && apt upgrade -y
-apt autoremove
 ```
 
 3. Install additional packages:
