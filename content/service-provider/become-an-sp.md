@@ -195,9 +195,12 @@ sec   rsa4096/0AFB10B643944C22 2024-05-03 [SC] [expires: 2025-05-03]
 uid                 [ultimate] user <hello@audubon.app>
 ```
 
-and replace the other keys with `0AFB10B643944C22` in the `.vault/vault-keys` file, then run `bash .vault/vault-rekey.sh`
+and replace the other keys with `0AFB10B643944C22` in the `.vault/vault-keys` file.
 
-- run: `export VAULT_KEY=password` where `password` is the password used for creating the GPG key.
+then run: `export VAULT_KEY=password` where `password` is the password used for creating the GPG key.
+
+Next, run `bash .vault/vault-rekey.sh` and enter that same password when prompted.
+
 
 - review [this commit](https://git.vdb.to/cerc-io/service-provider-template/commit/32e1ad0bd73f0754c0978c96eaee526fa841ddb4) and modify the domain, IP, and hostnames, etc., to match your setup.
 
@@ -207,13 +210,58 @@ and replace the other keys with `0AFB10B643944C22` in the `.vault/vault-keys` fi
 ansible-galaxy install -f -p roles -r roles/requirements.yml
 ```
 
-7. Generate token for the cluster
+6. Become familiar with encrypting and decrypting secrets using `ansible-vault`. You'll need have 3 files that are encrypted.
+ a) `group_vars/all/vault.yml` will look like:
+```
+---
+support_email: hello@audubon.app
+```
+ b) `files/manifests/secret-digitalocean-dns.yaml` will look like:
+```
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager
+---
+apiVersion: v1
+data:
+  access-token: <base_64_encoded_digital_ocean_token>
+kind: Secret
+metadata:
+  name: digitalocean-dns
+  namespace: cert-manager
+```
+ c) `./group_vars/lx_cad/k8s-vault.yml` which is created in the next step and looks like:
+```
+---
+k8s_cluster_token: f63c34881f3d7fbd30229db4c92d902b
+
+# note: delete this file; it will be re-created when running `./roles/k8s/files/token-vault.sh ./group_vars/lx_cad/k8s-vault.yml`
+```
+
+With `ansible-vault`, files are encrypted like so:
+```
+ansible-vault encrypt path/to/file.yaml
+```
+and the result overwrites the original file.
+
+To then decrypt that file run: 
+```
+echo 'content-of-the-file' | ansible-vault decrypt
+```
+and the decrypted file would be output to stdout.
+
+You can add additional PGP key IDs to the `.vault/vault-keys` file and re-key the vault to give other users access.
+
+8. Generate token for the cluster
+
+As mentioned, `rm ./group_vars/lx_cad/k8s-vault.yml` then
 
 ```
 ./roles/k8s/files/scripts/token-vault.sh ./group_vars/lx_cad/k8s-vault.yml
 ```
 
-Note: `lx_cad` should be changed to the different name used for your service provider deployment.
+Note: `lx_cad` should be changed to a different name used for your service provider deployment.
 
 8. Configure firewalld and nginx for hosts
 
