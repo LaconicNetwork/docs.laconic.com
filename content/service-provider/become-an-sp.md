@@ -129,7 +129,7 @@ Like this:
 
 ## Use ansible to setup a k8s cluster
 
-The steps in this section should be completed on a the `fake-laptop` machine.
+The steps in this section should be completed on the `fake-laptop` machine.
 
 1. Install ansible via virtual env
 
@@ -156,7 +156,35 @@ git clone https://git.vdb.to/cerc-io/service-provider-template.git
 cd service-provider-template/
 ```
 
-4. Update the template
+4. Sort out credentials
+
+- get a digital ocean token, base64 encode it, and put that in the `files/manifests/secret-digitalocean-dns.yaml` file
+   
+- create a PGP key:
+
+```
+gpg --full-generate-key
+```
+
+then 
+
+```
+gpg --list-secret-keys --keyid-format=long
+```
+
+which provides an output like:
+
+```
+[keyboxd]
+---------
+sec   rsa4096/0AFB10B643944C22 2024-05-03 [SC] [expires: 2025-05-03]
+      17B3248D6784EC6CB43365A60AFB10B643944C22
+uid                 [ultimate] user <hello@audubon.app>
+```
+
+and replace the other keys with `0AFB10B643944C22` in the `.vault/vault-keys` file, then run `bash .vault/vault-rekey.sh`
+
+- run: `export VAULT_KEY=password` where `password` is the password used for creating the GPG key.
 
 - review [this commit](https://git.vdb.to/cerc-io/service-provider-template/commit/32e1ad0bd73f0754c0978c96eaee526fa841ddb4) and modify the domain, IP, and hostnames, etc., to match your setup.
 
@@ -166,26 +194,18 @@ cd service-provider-template/
 ansible-galaxy install -f -p roles -r roles/requirements.yml
 ```
 
-6. Setup ansible vault
-
-a) supply the following
- - DO token
- - PGP key
-
-whereby the latter 2 are on yout local machine.
-
-b) do the other thing
-
 7. Generate token for the cluster
 
 ```
 ./roles/k8s/files/token-vault.sh ./group_vars/lx_cad/k8s-vault.yml
 ```
 
+Note: `lx_cad` should have changed to your custom deployment.
+
 8. Configure firewalld and nginx for hosts
 
 ```
-ansible-playbook -i hosts site.yml --tags=firewalld,nginx --user <remote_user>
+ansible-playbook -i hosts site.yml --tags=firewalld,nginx --user so
 ```
 
 9. Install Stack Orchestrator for hosts
@@ -199,7 +219,7 @@ ansible-playbook -i hosts site.yml --tags=so --limit=so --user so
 This step creates the cluster and puts the `kubeconfig.yml` at on your local machine here: `~/.kube/config-default.yaml`. You'll need it for later.
 
 ```
-ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad --user <remote_user>
+ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad --user so
 ```
 
 **Note:** For debugging, to undeploy, add `--extra-vars 'k8s_action=destroy'` to the above command.
@@ -223,7 +243,7 @@ kubectl get certificates
 kubectl get ds --all-namespaces
 ```
 
-TODO example of correct output
+TODO examples of correct output
 
 ## Nginx and SSL
 
