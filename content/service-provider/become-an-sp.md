@@ -155,6 +155,7 @@ ansible --version
 2. Install stack orchestrator
 
 ```
+mkdir ~/bin
 curl -L -o ~/bin/laconic-so https://git.vdb.to/cerc-io/stack-orchestrator/releases/download/latest/laconic-so
 chmod +x ~/bin/laconic-so
 laconic-so version
