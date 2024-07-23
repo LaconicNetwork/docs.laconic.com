@@ -356,42 +356,12 @@ This will be the first test that everything is configured correctly.
 
 ```
 laconic-so --stack container-registry deploy init --output container-registry.spec
-laconic-so --stack container-registry deploy create --deployment-dir container-registry --spec-file container-registry.spec
 ```
-
-The above commands created a new directory; `container-registry`. It looks like:
-
-```
-$ ls
-compose/  config.env  data/  deployment.yml  pods/  spec.yml  stack.yml
-```
-and we need to make a few modifications:
-
-the file `container-registry/compose/docker-compose-container-registry.yml` should look like:
-
-```
-services:
-  registry:
-    image: docker.io/library/registry:2.8
-    restart: always
-    environment:
-      REGISTRY_LOG_LEVEL: ${REGISTRY_LOG_LEVEL}
-    volumes:
-     - config:/config:ro
-     - registry-data:/var/lib/registry
-    ports:
-     - '5000'
-volumes:
-  config:
-  registry-data:
-```
-
-the `container-registry/spec.yaml` should look like:
-
+Modify the `container-registry.spec` to look like:
 ```
 stack: container-registry
 deploy-to: k8s
-kube-config: /home/so/.kube/config-default.yaml
+kube-config: /root/.kube/config-default.yaml
 network:
   ports:
     registry:
@@ -407,18 +377,22 @@ configmaps:
   config: ./configmaps/config
 ```
 
-copy in the kubectl file:
+then run:
 ```
-cp /home/so/.kube/config-default.yaml
-container-registry/kubeconfig.yml
+laconic-so --stack container-registry deploy create --deployment-dir container-registry --spec-file container-registry.spec
 ```
+
+The above commands created a new directory; `container-registry`. It looks like:
+
+```
+$ ls
+compose/  config.env configmaps/ deployment.yml kubeconfig.yml pods/  spec.yml  stack.yml
+```
+
 
 ### Htpasswd
 
-delete the `container-registry/data` directory
-and create a new `container-registry/configmaps/config/` directory which will contain the htpasswd file
-
-create the `htpasswd` file:
+1. Create the `htpasswd` file:
 
 ```
 htpasswd -b -c container-registry/configmaps/config/htpasswd so-reg-user pXDwO5zLU7M88x3aA
@@ -474,26 +448,13 @@ Check the logs:
 laconic-so deployment --dir container-registry logs
 ```
 
-With a successful container registry deployed, it is now possible to deploy webapps to the cluster
-
-#### Deploy a test app
+Confirm deployment by loggin in:
 
 ```
-git clone git@git.vdb.to:cerc-io/test-progressive-web-app.git ~/cerc/test-progressive-web-app
-laconic-so build-webapp --source-repo ~/cerc/test-progressive-web-app
-```
-explain
-```
-laconic-so deploy-webapp create --kube-config /home/so/.kube/config-default.yaml --image-registry container-registry.pwa.audubon.app --deployment-dir webapp-k8s-deployment --image cerc/test-progressive-web-app:local --url https://my-test-app.pwa.audubon.app --env-file ~/cerc/test-progressive-web-app/.env
+docker login container-registry.pwa.audubon.app --username so-reg-user --password pXDwO5zLU7M88x3aA
 ```
 
-You built a docker image on you local machine. It needs to be pushed to the docker registry that you just created and is running as a pod in the cluster:
-
-```
-docker login --username so-reg-user --password pXDwO5zLU7M88x3aA
-```
-
-All the previous htpasswd configuration is to enable the deployer (below) to build and push images to the docker registry.
+All this htpasswd configuration will enable the deployer (below) to build and push images to this docker registry (which is hosted on your k8s cluster).
 
 ### Set ingress annotations
 
@@ -505,21 +466,6 @@ kubectl annotate ingress laconic-26cc70be8a3db3f4-ingress nginx.ingress.kubernet
 ```
 
 Note: this will be handled automatically by stack orchestrator in [this issue](https://git.vdb.to/cerc-io/stack-orchestrator/issues/849).
-
-Next, push the image that you just built for the example webapp
-```
-laconic-so deployment --dir webapp-k8s-deployment push-images
-```
-And finally, start the deployment
-```
-laconic-so deployment --dir webapp-k8s-deployment start
-```
-
-After a couple minutes, you should see a pod for this webapp and the webapp running at https://my-test-app.pwa.audubon.app. Check with:
-
-```
-laconic-so deployment --dir webapp-k8s-deployment status
-```
 
 ## Connect to laconicd
 
@@ -548,34 +494,9 @@ This service listens for `ApplicationDeploymentRequest`'s in the Laconic Registr
 laconic-so --stack webapp-deployer-backend setup-repositories
 laconic-so --stack webapp-deployer-backend build-containers
 laconic-so --stack webapp-deployer-backend deploy init --output webapp-deployer.spec
-laconic-so --stack webapp-deployer-backend deploy create --deployment-dir webapp-deployer --spec-file webapp-deployer.spec
 ```
-Modify the contents of `webapp-deployer/config.env`:
+Modify `webapp-deployer.spec`:
 
-```
-DEPLOYMENT_DNS_SUFFIX="pwa.audubon.app"
-
-# this should match the name authority reserved above
-DEPLOYMENT_RECORD_NAMESPACE="mito"
-
-# url of the deployed docker image registry
-IMAGE_REGISTRY="container-registry.pwa.audubon.app"
-
-# credentials from the htpasswd section above
-IMAGE_REGISTRY_USER="so-reg-user"
-IMAGE_REGISTRY_CREDS="pXDwO5zLU7M88x3aA"
-
-# configs
-CLEAN_DEPLOYMENTS=false
-CLEAN_LOGS=false
-CLEAN_CONTAINERS=false
-SYSTEM_PRUNE=false
-WEBAPP_IMAGE_PRUNE=true
-CHECK_INTERVAL=5
-FQDN_POLICY="allow"
-```
-
-Modify `webapp-deployer/spec.yml`:
 ```
 stack: webapp-deployer-backend
 deploy-to: k8s
@@ -613,6 +534,38 @@ resources:
     reservations:
       storage: 200G
 ```
+
+then run:
+```
+laconic-so --stack webapp-deployer-backend deploy create --deployment-dir webapp-deployer --spec-file webapp-deployer.spec
+```
+
+Modify the contents of `webapp-deployer/config.env`:
+
+```
+DEPLOYMENT_DNS_SUFFIX="pwa.audubon.app"
+
+# this should match the name authority reserved above
+DEPLOYMENT_RECORD_NAMESPACE="mito"
+
+# url of the deployed docker image registry
+IMAGE_REGISTRY="container-registry.pwa.audubon.app"
+
+# credentials from the htpasswd section above
+IMAGE_REGISTRY_USER="so-reg-user"
+IMAGE_REGISTRY_CREDS="pXDwO5zLU7M88x3aA"
+
+# configs
+CLEAN_DEPLOYMENTS=false
+CLEAN_LOGS=false
+CLEAN_CONTAINERS=false
+SYSTEM_PRUNE=false
+WEBAPP_IMAGE_PRUNE=true
+CHECK_INTERVAL=5
+FQDN_POLICY="allow"
+```
+
+
 
 In `webapp-deployer/data/config/` there needs to be two files:
   1. `kube.yml` --> copied from `/home/so/.kube/config-default.yaml`
