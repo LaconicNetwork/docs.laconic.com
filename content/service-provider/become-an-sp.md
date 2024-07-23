@@ -210,10 +210,10 @@ ansible-galaxy install -f -p roles -r roles/requirements.yml
 7. Generate token for the cluster
 
 ```
-./roles/k8s/files/token-vault.sh ./group_vars/lx_cad/k8s-vault.yml
+./roles/k8s/files/scripts/token-vault.sh ./group_vars/lx_cad/k8s-vault.yml
 ```
 
-Note: `lx_cad` should have changed to your custom deployment.
+Note: `lx_cad` should be changed to the different name used for your service provider deployment.
 
 8. Configure firewalld and nginx for hosts
 
