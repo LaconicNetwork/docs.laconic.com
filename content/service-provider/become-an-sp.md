@@ -9,7 +9,7 @@ weight: 1
 
 Using digital ocean. These are minimum suggested specifications:
 
-- fake-laptop (4G RAM, 25G Disk)
+- fake-laptop (4G RAM, 25G Disk) - install `yq`
 - daemon (4G RAM, 25G Disk)
 - control (16G RAM, 300G Disk)
 
@@ -69,9 +69,7 @@ apt purge -y snapd
 rm -rf ~/snap /snap /var/snap /var/lib/snapd
 ```
 
-## Daemon-only (skip this step for the control node)
-
-1. Create a new user `so`:
+6. Create a new user `so`:
 
 ```
 adduser so
@@ -81,6 +79,8 @@ adduser so
 # then give this user sudoer permissions
 sudo adduser so sudo
 ```
+
+## Daemon-only (skip this step for the control node)
 
 2. On `fake-laptop` run `ssh-keygen` then `cat ~/.ssh/id_ed25519.pub` and put the output in to `/home/so/.ssh/authorized_keys` on `lnt-daemon`.
 
@@ -142,7 +142,13 @@ Like this:
 
 The steps in this section should be completed on the `fake-laptop` machine.
 
-1. Install ansible via virtual env
+1. Install k8s helper tools
+
+```
+sudo ./roles/k8s/files/scripts/get-kube-tools.sh
+```
+
+2. Install ansible via virtual env
 
 ```
 sudo apt install python3-pip python3.12-venv
@@ -152,7 +158,7 @@ pip install ansible
 ansible --version
 ```
 
-2. Install stack orchestrator
+3. Install stack orchestrator
 
 ```
 mkdir ~/bin
@@ -162,14 +168,14 @@ chmod +x ~/bin/laconic-so
 laconic-so version
 ```
 
-3. Clone the service provider template repo and enter the directory
+4. Clone the service provider template repo and enter the directory
 
 ```
 git clone https://git.vdb.to/cerc-io/service-provider-template.git
 cd service-provider-template/
 ```
 
-4. Sort out credentials
+5. Sort out credentials and ansible vault
 
 - get a digital ocean token, base64 encode it, and put that in the `files/manifests/secret-digitalocean-dns.yaml` file
    
@@ -201,16 +207,15 @@ then run: `export VAULT_KEY=password` where `password` is the password used for 
 
 Next, run `bash .vault/vault-rekey.sh` and enter that same password when prompted.
 
-
 - review [this commit](https://git.vdb.to/cerc-io/service-provider-template/commit/32e1ad0bd73f0754c0978c96eaee526fa841ddb4) and modify the domain, IP, and hostnames, etc., to match your setup.
 
-5. Install required roles
+6. Install required roles
 
 ```
 ansible-galaxy install -f -p roles -r roles/requirements.yml
 ```
 
-6. Become familiar with encrypting and decrypting secrets using `ansible-vault`. You'll need have 3 files that are encrypted.
+7. Become familiar with encrypting and decrypting secrets using `ansible-vault`. You'll need have 3 files that are encrypted.
  a) `group_vars/all/vault.yml` will look like:
 ```
 ---
@@ -263,54 +268,87 @@ As mentioned, `rm ./group_vars/lx_cad/k8s-vault.yml` then
 
 Note: `lx_cad` should be changed to a different name used for your service provider deployment.
 
-8. Configure firewalld and nginx for hosts
+9. Configure firewalld and nginx for hosts
 
 ```
-ansible-playbook -i hosts site.yml --tags=firewalld,nginx --user so
+ansible-playbook -i hosts site.yml --tags=firewalld,nginx --user so -K
 ```
+When prompted, enter the password for the `so` user that was created both the daemon and control machines.
 
-9. Install Stack Orchestrator for hosts
+10. Install Stack Orchestrator for hosts
 
 ```
-ansible-playbook -i hosts site.yml --tags=so --limit=so --user so
+ansible-playbook -i hosts site.yml --tags=so --limit=so --user so -K
 ```
+Enter the `so` user password again.
 
-10. Deploy k8s to hosts
+11. Deploy k8s to hosts
 
 This step creates the cluster and puts the `kubeconfig.yml` at on your local machine here: `~/.kube/config-default.yaml`. You'll need it for later.
 
 ```
-ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad --user root
+ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad --user so -K
 ```
+Enter the `so` user password again.
 
 **Note:** For debugging, to undeploy, add `--extra-vars 'k8s_action=destroy'` to the above command.
 
-11. Install k8s helper tools
+12. Verify cluster creation
 
-```
-sudo ~/lx-cad-deploy/roles/k8s/files/get-kube-tools.sh
-```
-
-11. Verify cluster creation
-
-Run these commands to view the various resources that were created by the ansible playbook.
+Run these commands to view the various resources that were created by the ansible playbook. Your output form each commmand should look similar.
 
 ```
 kubie ctx default
-kubectl get nodes -o wide
-kubectl get secrets --all-namespaces
-kubectl get clusterissuer
-kubectl get certificates
-kubectl get ds --all-namespaces
+# this allows you to run kubectl commands
 ```
 
-TODO examples of correct output
+```
+kubectl get nodes -o wide
+
+NAME                      STATUS   ROLES                       AGE   VERSION        INTERNAL-IP     EXTERNAL-IP     OS-IMAGE           KERNEL-VERSION     CONTAINER-RUNTIME
+lnt-cad-cluster-control   Ready    control-plane,etcd,master   27m   v1.29.6+k3s2   147.182.144.6   147.182.144.6   Ubuntu 24.04 LTS   6.8.0-36-generic   containerd://1.7.17-k3s1
+```
+```
+kubectl get secrets --all-namespaces
+
+NAMESPACE       NAME                                        TYPE                DATA   AGE
+cert-manager    cert-manager-webhook-ca                     Opaque              3      3m14s
+cert-manager    digitalocean-dns                            Opaque              1      3m30s
+cert-manager    letsencrypt-prod-prviate-key                Opaque              1      3m3s
+cert-manager    letsencrypt-prod-wild-prviate-key           Opaque              1      3m3s
+default         pwa.realitynetwork.store-lsnz4              Opaque              1      3m3s
+ingress-nginx   ingress-nginx-admission                     Opaque              3      3m13s
+kube-system     k3s-serving                                 kubernetes.io/tls   2      28m
+kube-system     tnt-cad-cluster-control.node-password.k3s   Opaque              1      28m
+```
+
+```
+kubectl get clusterissuer
+
+NAME                    READY   AGE
+letsencrypt-prod        True    4m8s
+letsencrypt-prod-wild   True    4m8s
+```
+
+```
+kubectl get certificates
+
+NAME                       READY   SECRET                     AGE
+pwa.audubon.app            True    pwa.audubon.app            4m31s
+```
+
+```
+kubectl get ds --all-namespaces
+
+NAMESPACE     NAME                                      DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+kube-system   svclb-ingress-nginx-controller-a766a501   1         1         1       1            1           <none>          5m32s
+```
 
 ## Nginx and SSL
 
-If your initial ansible configuration was modified correctly; nginx and SSL will work. The k8s cluster was created with the features and settings for these components to be automated.
+If your initial ansible configuration was modified correctly; nginx and SSL will work. The k8s cluster was created with these features automated.
 
-### Deploy container registry
+## Deploy docker image (container) registry
 
 This will be the first test that everything is configured correctly.
 
