@@ -158,6 +158,7 @@ ansible --version
 mkdir ~/bin
 curl -L -o ~/bin/laconic-so https://git.vdb.to/cerc-io/stack-orchestrator/releases/download/latest/laconic-so
 chmod +x ~/bin/laconic-so
+# add `export PATH="$HOME/bin:$PATH"` to `~/.bashrc`
 laconic-so version
 ```
 
