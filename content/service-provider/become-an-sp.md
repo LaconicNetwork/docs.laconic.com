@@ -104,6 +104,13 @@ echo \
 apt update -y && apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
+Logout from the root user and log back in as the `so` user. Then run:
+
+```
+sudo groupadd docker
+sudo usermod -aG docker so
+```
+
 ## Get a domain
 
 In this example, we are using audubon.app and its [nameservers point to Digital Ocean](https://docs.digitalocean.com/products/networking/dns/getting-started/dns-registrars/). You'll need to do the same.
@@ -223,7 +230,7 @@ ansible-playbook -i hosts site.yml --tags=so --limit=so --user so
 This step creates the cluster and puts the `kubeconfig.yml` at on your local machine here: `~/.kube/config-default.yaml`. You'll need it for later.
 
 ```
-ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad --user so
+ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad --user root
 ```
 
 **Note:** For debugging, to undeploy, add `--extra-vars 'k8s_action=destroy'` to the above command.
