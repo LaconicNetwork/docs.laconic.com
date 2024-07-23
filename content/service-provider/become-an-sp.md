@@ -7,19 +7,19 @@ weight: 1
 
 ## Select and boot servers
 
-Using your choice of cloud provider or bare metal. These are minimum suggested specifications:
+Using digital ocean. These are minimum suggested specifications:
 
+- fake-laptop (4G RAM, 25G Disk)
 - daemon (4G RAM, 25G Disk)
 - control (16G RAM, 300G Disk)
-- worker (16G RAM, 300G Disk)
 
 ## Access control
 
-This is personal preference. At a minimum, create a new user on each machine and disable root access.
+This is personal preference. At minimum, create new users and disable root access. The daemon will need an `so` user, see below. 
 
 ## Initial Ubuntu base setup
 
-**On all remote machines:**
+**On daemon and control:**
 
 1. Set unique hostnames 
 
@@ -31,7 +31,6 @@ In the following example, we've named each machine like so:
 ```
 lx-daemon               23.111.69.218
 lx-cad-cluster-worker   23.111.78.182
-lx-cad-cluster-control  23.111.78.179
 ```
 
 See below for the full list of DNS records to be configured.
@@ -48,6 +47,8 @@ apt autoremove
 ```
 apt install -y doas zsh tmux git jq acl curl wget netcat-traditional fping rsync htop iotop iftop tar less firewalld sshguard wireguard iproute2 iperf3 zfsutils-linux net-tools ca-certificates gnupg
 ```
+
+Select "Yes" when prompted for iperf3.
 
 4. Verify status of firewalld and enable sshguard:
 
@@ -69,7 +70,7 @@ apt purge -y snapd
 rm -rf ~/snap /snap /var/snap /var/lib/snapd
 ```
 
-## Daemon-only (skip this step for worker and control nodes)
+## Daemon-only (skip this step for the control node)
 
 1. Create a new user `so`:
 
@@ -79,24 +80,13 @@ adduser so
 
 2. Add an ssh pub key of your local machine (the place from which you'll run ansible) to `/home/so/.ssh/authorized_keys`
 
-3. Add an ssh priv key that has read access for git.vdb.to to `/home/so/.ssh/id_rsa`
-
-4. Add the following lines to `/home/so/.bashrc`
-
-```
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_rsa
-```
-
-Note: steps 3 & 4 should be removed; without it `/usr/bin/git ls-remote git@git.vdb.to:cerc-io/stack-orchestrator.git` fails with "Permission denied".
-
-5. Install nginx and certbot:
+3. Install nginx and certbot:
 
 ```
 apt install -y nginx certbot python3-certbot-nginx
 ```
 
-6. Install Docker:
+4. Install Docker:
 
 ```
 install -m 0755 -d /etc/apt/keyrings
@@ -114,10 +104,32 @@ apt update -y && apt install -y docker-ce docker-ce-cli containerd.io docker-bui
 
 In this example, we are using audubon.app and its [nameservers point to Digital Ocean](https://docs.digitalocean.com/products/networking/dns/getting-started/dns-registrars/). You'll need to do the same.
 
+## Configure DNS
 
-## Ansible Playbook to setup a simple k8s cluster
+As mentioned, point your nameservers to DO. Integration with other providers is possible; we use DO as an example. Recall that your DO token is added to the ansible vault.
+ 
+Like this:
 
-The steps in this section should be completed on a fourth seperate machine (e.g., your laptop). If it's a Mac, ensure you are logged in as the first user that was created.
+|  Type  |            Hostname                |            Value                    |
+|--------|------------------------------------|-------------------------------------|
+| A      | lx-daemon.audubon.app              | 23.111.69.218                       |
+| A      | lx-cad-cluster-control.audubon.app | 23.111.78.179                       |
+| NS     | audubon.app                        | ns1.digitalocean.com.               |
+| NS     | audubon.app                        | ns2.digitalocean.com.               |
+| NS     | audubon.app                        | ns3.digitalocean.com.               |
+| CNAME  | www.audubon.app                    | audubon.app.                        |
+| CNAME  | laconicd.audubon.app               | lx-daemon.audubon.app.              |
+| CNAME  | lx-backend.audubon.app             | lx-daemon.audubon.app.              |
+| CNAME  | lx-console.audubon.app             | lx-daemon.audubon.app.              |
+| CNAME  | lx-cad.audubon.app                 | lx-cad-cluster-control.audubon.app. |
+| CNAME  | *.lx-cad.audubon.app               | lx-cad-cluster-control.audubon.app. |
+| CNAME  | pwa.audubon.app                    | lx-cad-cluster-control.audubon.app. |
+| CNAME  | *.pwa.audubon.app                  | lx-cad-cluster-control.audubon.app. |
+
+
+## Use ansible to setup a k8s cluster
+
+The steps in this section should be completed on a the `fake-laptop` machine.
 
 1. Install ansible via virtual env
 
@@ -137,25 +149,24 @@ chmod +x ~/bin/laconic-so
 laconic-so version
 ```
 
-
-2. Clone repo and enter the directory
+3. Clone the service provider template repo and enter the directory
 
 ```
 git clone https://git.vdb.to/cerc-io/service-provider-template.git
 cd service-provider-template/
 ```
 
-3. Update to the template
+4. Update the template
 
 - review [this commit](https://git.vdb.to/cerc-io/service-provider-template/commit/32e1ad0bd73f0754c0978c96eaee526fa841ddb4) and modify the domain, IP, and hostnames, etc., to match your setup.
 
-4. Install required roles
+5. Install required roles
 
 ```
 ansible-galaxy install -f -p roles -r roles/requirements.yml
 ```
 
-5. Setup ansible vault
+6. Setup ansible vault
 
 a) supply the following
  - DO token
@@ -165,27 +176,25 @@ whereby the latter 2 are on yout local machine.
 
 b) do the other thing
 
-6. Generate token for the cluster
+7. Generate token for the cluster
 
 ```
 ./roles/k8s/files/token-vault.sh ./group_vars/lx_cad/k8s-vault.yml
 ```
 
-
-
-6. Configure firewalld and nginx for hosts
+8. Configure firewalld and nginx for hosts
 
 ```
 ansible-playbook -i hosts site.yml --tags=firewalld,nginx --user <remote_user>
 ```
 
-7. Install Stack Orchestrator for hosts
+9. Install Stack Orchestrator for hosts
 
 ```
 ansible-playbook -i hosts site.yml --tags=so --limit=so --user so
 ```
 
-8. Deploy k8s to hosts
+10. Deploy k8s to hosts
 
 This step creates the cluster and puts the `kubeconfig.yml` at on your local machine here: `~/.kube/config-default.yaml`. You'll need it for later.
 
@@ -195,19 +204,15 @@ ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad --user <remote_user
 
 **Note:** For debugging, to undeploy, add `--extra-vars 'k8s_action=destroy'` to the above command.
 
-9. Install k8s helper tools
+11. Install k8s helper tools
 
-- on Linux systems:
 ```
 sudo ~/lx-cad-deploy/roles/k8s/files/get-kube-tools.sh
 ```
 
-- on a Mac:
-```
-brew install kubie kubectl yq helm
-```
+11. Verify cluster creation
 
-10. Verify cluster creation
+Run these commands to view the various resources that were created by the ansible playbook.
 
 ```
 kubie ctx default
@@ -218,43 +223,11 @@ kubectl get certificates
 kubectl get ds --all-namespaces
 ```
 
-TODO tidy this section up
-
-## Configure DNS
-
-As mentioned, point your nameservers to DO. Integration with other providers is possible; we use DO as an example. Recall that your DO token isadded to the ansible vault.
-
-Like this:
-
-|  Type  |            Hostname                |            Value                   |
-|--------|------------------------------------|------------------------------------|
-| A      | lx-daemon.audubon.app              | 23.111.69.218                      |
-| A      | lx-cad-cluster-worker.audubon.app  | 23.111.78.182                      |
-| A      | lx-cad-cluster-control.audubon.app | 23.111.78.179                      |
-| NS     | audubon.app                        | ns1.digitalocean.com.              |
-| NS     | audubon.app                        | ns2.digitalocean.com.              |
-| NS     | audubon.app                        | ns3.digitalocean.com.              |
-| CNAME  | www.audubon.app                    | audubon.app.                       |
-| CNAME  | laconicd.audubon.app               | lx-daemon.audubon.app.             |
-| CNAME  | lx-backend.audubon.app             | lx-daemon.audubon.app.             |
-| CNAME  | lx-console.audubon.app             | lx-daemon.audubon.app.             |
-| CNAME  | lx-cad.audubon.app                 | lx-cad-cluster-worker.audubon.app. |
-| CNAME  | *.lx-cad.audubon.app               | lx-cad-cluster-worker.audubon.app. |
-| CNAME  | pwa.audubon.app                    | lx-cad-cluster-worker.audubon.app. |
-| CNAME  | *.pwa.audubon.app                  | lx-cad-cluster-worker.audubon.app. |
-
-In DigitalOcean, it looks like:
-
-![sp-dns](/images/dns-sp-docs.png)
-
+TODO example of correct output
 
 ## Nginx and SSL
 
 If your initial ansible configuration was modified correctly; nginx and SSL will work. The k8s cluster was created with the features and settings for these components to be automated.
-
-## Stack Orchestrator
-- installed on the daemon machine for use by the deployer
-- installed on your local machine
 
 ### Deploy container registry
 
@@ -315,7 +288,7 @@ configmaps:
 
 copy in the kubectl file:
 ```
-cp /home/so/.kube/config-mito-lx-cad.yaml
+cp /home/so/.kube/config-default.yaml
 container-registry/kubeconfig.yml
 ```
 
@@ -363,8 +336,6 @@ where the `auth:` field is the output of:
 echo -n "so-reg-user:pXDwO5zLU7M88x3aA" | base64 -w0
 ```
 
-Note: on a Mac, omit the trailing `-w0`
-
 Finally, add the container registry credentials as a secret available to the cluster:
 
 ```
@@ -379,7 +350,7 @@ laconic-so deployment --dir container-registry start
 
 Check the logs:
 ```
-laconic-so deployment --dir container-registry start
+laconic-so deployment --dir container-registry logs
 ```
 
 With a successful container registry deployed, it is now possible to deploy webapps to the cluster
@@ -405,7 +376,7 @@ All the previous htpasswd configuration is to enable the deployer (below) to bui
 
 ### Set ingress annotations
 
-1. replace `26cc70be8a3db3f4` with your `cluster-id` in the following commands:
+1. replace `laconic-26cc70be8a3db3f4` with the `cluster-id` found in `container-registry/deployment.yml` to run the following commands:
 ```
 kubectl annotate ingress laconic-26cc70be8a3db3f4-ingress nginx.ingress.kubernetes.io/proxy-body-size=0
 kubectl annotate ingress laconic-26cc70be8a3db3f4-ingress nginx.ingress.kubernetes.io/proxy-read-timeout=600
@@ -423,11 +394,19 @@ And finally, start the deployment
 laconic-so deployment --dir webapp-k8s-deployment start
 ```
 
-If everything worked, after a couple minutes, you should see a pod for this webapp and the webapp running at https://my-test-app.pwa.audubon.app
+After a couple minutes, you should see a pod for this webapp and the webapp running at https://my-test-app.pwa.audubon.app. Check with:
 
-### Deploy the laconicd registry and console
+```
+laconic-so deployment --dir webapp-k8s-deployment status
+```
 
-Follow the instructions in [this document](https://git.vdb.to/cerc-io/stack-orchestrator/src/branch/main/docs/laconicd-with-console.md)
+## Connect to laconicd
+
+For the testnet, this next step will require using the onboarding app. Running a single node fixturenet will allow service providers to test their system e2e prior to the testnet.
+
+### Deploy a single laconicd fixturenet and console
+
+Follow the instructions in [this document](https://git.vdb.to/cerc-io/fixturenet-laconicd-stack/src/branch/main/stack-orchestrator/stacks/fixturenet-laconicd/README.md)
 
 After publishing sample records, you'll have a `bondId`. Also retreive your `userKey` (private key) which will be required later.
 
@@ -438,12 +417,7 @@ laconic registry authority reserve my-org-name
 laconic registry authority bond set my-org-name 0e9176d854bc3c20528b6361aab632f0b252a0f69717bf035fa68d1ef7647ba7
 ```
 
-where `my-org-name` needs to be added to the `package.json` of any application deployed under this namespace. For example:
-
-```
-"name": "@my-org-name/my-application"
-```
-
+where `my-org-name` needs to be added to the `package.json` of any application deployed under this namespace and will be set as the env var `DEPLOYMENT_RECORD_NAMESPACE="my-org-name"`, below.
 
 ### Deploy deployer back end
 
@@ -746,6 +720,8 @@ echo $RECORD_ID
 
 rm -f $RECORD_FILE $CONFIG_FILE
 ```
+
+4. Update `package.json` --> `@my-org-name/app-name`
 
 Now, anytime a release is created, a new set of records will be published to the Laconic Registry, and eventually picked up by the `deployer`, which will target the k8s cluster that was setup.
 
