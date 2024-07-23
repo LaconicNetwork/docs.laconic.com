@@ -9,7 +9,7 @@ weight: 1
 
 Using digital ocean. These are minimum suggested specifications:
 
-- fake-laptop (4G RAM, 25G Disk) - install `yq`
+- fake-laptop (4G RAM, 25G Disk)
 - daemon (4G RAM, 25G Disk)
 - control (16G RAM, 300G Disk)
 
