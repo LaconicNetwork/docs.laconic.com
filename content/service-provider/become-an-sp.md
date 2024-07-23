@@ -110,14 +110,15 @@ Logout from the root user and log back in as the `so` user. Then run:
 sudo groupadd docker
 sudo usermod -aG docker so
 ```
+Confirm docker works with `docker run hello-world`.
 
-## Get a domain
+## Buy a domain and configure nameservers to DO
 
-In this example, we are using audubon.app and its [nameservers point to Digital Ocean](https://docs.digitalocean.com/products/networking/dns/getting-started/dns-registrars/). You'll need to do the same.
+In this example, we are using audubon.app with [nameservers pointing to Digital Ocean](https://docs.digitalocean.com/products/networking/dns/getting-started/dns-registrars/). You'll need to do the same. Integration with other providers is possible and encouraged, but requires know-how and research. Later, we'll need a Digital Ocean Access Token added to the ansible-vault.
 
 ## Configure DNS
 
-As mentioned, point your nameservers to DO. Integration with other providers is possible; we use DO as an example. Recall that your DO token is added to the ansible vault.
+As mentioned, point your nameservers to Digital Ocean and create the following A and CNAME records from the Digital Ocean Dashboard.
  
 Like this:
 
@@ -140,13 +141,7 @@ Like this:
 
 ## Use ansible to setup a k8s cluster
 
-The steps in this section should be completed on the `fake-laptop` machine.
-
-1. Install k8s helper tools
-
-```
-sudo ./roles/k8s/files/scripts/get-kube-tools.sh
-```
+The steps in this section and for the rest of the tutorial are to be completed on the `fake-laptop` machine (with the exception of deploying laconicd on the daemon).
 
 2. Install ansible via virtual env
 
@@ -174,6 +169,7 @@ laconic-so version
 git clone https://git.vdb.to/cerc-io/service-provider-template.git
 cd service-provider-template/
 ```
+
 
 5. Sort out credentials and ansible vault
 
@@ -213,6 +209,12 @@ Next, run `bash .vault/vault-rekey.sh` and enter that same password when prompte
 
 ```
 ansible-galaxy install -f -p roles -r roles/requirements.yml
+```
+
+1. Install k8s helper tools
+
+```
+sudo ./roles/k8s/files/scripts/get-kube-tools.sh
 ```
 
 7. Become familiar with encrypting and decrypting secrets using `ansible-vault`. You'll need have 3 files that are encrypted.
