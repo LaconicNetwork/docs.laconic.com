@@ -11,7 +11,7 @@ Using digital ocean. These are minimum suggested specifications:
 
 - fake-laptop (4G RAM, 25G Disk)
 - daemon (4G RAM, 25G Disk)
-- control (16G RAM, 300G Disk)
+- control (8vCPUs, 32G RAM, 300G Disk)
 
 ## Access control
 
