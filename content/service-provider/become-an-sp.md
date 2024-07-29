@@ -82,15 +82,15 @@ sudo adduser so sudo
 
 ## Daemon-only (skip this step for the control node)
 
-2. On `orchestrator` run `ssh-keygen` then `cat ~/.ssh/id_ed25519.pub` and put the output in to `/home/so/.ssh/authorized_keys` on `lcn-daemon` and `lcn-cad-cluster-control`
+1. On `orchestrator` run `ssh-keygen` then `cat ~/.ssh/id_ed25519.pub` and put the output in to `/home/so/.ssh/authorized_keys` on `lcn-daemon` and `lcn-cad-cluster-control`
 
-3. Install nginx and certbot:
+2. Install nginx and certbot:
 
 ```
 apt install -y nginx certbot python3-certbot-nginx
 ```
 
-4. Install Docker:
+3. Install Docker:
 
 ```
 install -m 0755 -d /etc/apt/keyrings
@@ -104,14 +104,14 @@ echo \
 apt update -y && apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-Logout from the root user and log back in as the `so` user. Then run:
+4. Logout from the root user and log back in as the `so` user. Then run:
 
 ```
 sudo groupadd docker
 sudo usermod -aG docker so
 ```
 
-Confirm docker works with `docker run hello-world`.
+5. Confirm docker works with `docker run hello-world`.
 
 ## Buy a domain and configure nameservers to DO
 
@@ -199,7 +199,7 @@ sec   rsa4096/0AFB10B643944C22 2024-05-03 [SC] [expires: 2025-05-03]
 uid                 [ultimate] user <hello@laconic.com>
 ```
 
-and replace the other keys with `0AFB10B643944C22` in the `.vault/vault-keys` file.
+and replace the other keys with `0AFB10B643944C22` in the `.vault/vault-keys` file. Start the agent: `gpg-agent`.
 
 then run: `export VAULT_KEY=password` where `password` is the password used for creating the GPG key.
 
@@ -222,12 +222,14 @@ sudo ./roles/k8s/files/scripts/get-kube-tools.sh
 8. Become familiar with encrypting and decrypting secrets using `ansible-vault`. You'll need have 3 files that are encrypted.
  
 a) `group_vars/all/vault.yml` will look like:
+
 ```
 ---
 support_email: hello@laconic.com
 ```
 
- b) `files/manifests/secret-digitalocean-dns.yaml` will look like:
+b) `files/manifests/secret-digitalocean-dns.yaml` will look like:
+
 ```
 apiVersion: v1
 kind: Namespace
@@ -243,7 +245,8 @@ metadata:
   namespace: cert-manager
 ```
 
- c) `./group_vars/lcn_cad/k8s-vault.yml` which will be created in the next step and looks like:
+c) `./group_vars/lcn_cad/k8s-vault.yml` which will be created in the next step and looks like:
+
 ```
 ---
 k8s_cluster_token: f63c34881f3d7fbd30229db4c82e902b
@@ -252,15 +255,19 @@ k8s_cluster_token: f63c34881f3d7fbd30229db4c82e902b
 ```
 
 With `ansible-vault`, files are encrypted like so:
+
 ```
 ansible-vault encrypt path/to/file.yaml
 ```
+
 and the result overwrites the original file with the encrypted version.
 
 To then decrypt that file run: 
+
 ```
 echo 'content-of-the-file' | ansible-vault decrypt
 ```
+
 and the decrypted file will be output to stdout.
 
 You can add additional PGP key IDs to the `.vault/vault-keys` file and re-key the vault to give other users access.
@@ -578,8 +585,6 @@ CHECK_INTERVAL=5
 FQDN_POLICY="allow"
 ```
 
-
-
 In `webapp-deployer/data/config/` there needs to be two files:
   1. `kube.yml` --> copied from `/home/so/.kube/config-default.yaml`
   2. `laconic.yml` --> with the details for talking to laconicd
@@ -629,7 +634,6 @@ laconic-so deployment --dir webapp-ui start
 
 4. Wait a moment then view https://webapp-deployer-ui.pwa.laconic.com for the status and logs of each deployment.
 
-
 ## Deploy a test webapp
 
 1. Fork this repo: https://git.vdb.to/cerc-io/test-progressive-web-app
@@ -646,8 +650,6 @@ Now, anytime a release is created, a new set of records will be published to the
 
 **Note:** to override the default webapp build process, put a file named `build-webapp.sh` in the root of the repo.
 
-
-
 ## Result
 
 We now have:
@@ -656,7 +658,4 @@ We now have:
 - https://container-registry.pwa.laconic.com hosts docker images used by webapp deployments
 - https://webapp-deployer-api.pwa.laconic.com listens for ApplicationDeploymentRequest and runs `laconic-so deploy-webapp-from-registry` behind the scenes
 - https://webapp-deployer-ui.pwa.laconic.com displays status and logs for webapps deployed via the Laconic Registry
-
-Let's take a look at how to configure CI/CD workflow to deploy webapps via from the registry.
-
-
+- https://app-name-45wjhbhef.pwa.laconic.com is the webapp deployed above
