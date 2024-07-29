@@ -29,8 +29,8 @@ hostnamectl set-hostname changeme
 
 In the following example, we've named each machine like so:
 ```
-lx-daemon               23.111.69.218
-lx-cad-cluster-worker   23.111.78.182
+lcn-daemon               23.111.69.218
+lcn-cad-cluster-worker   23.111.78.182
 ```
 
 See below for the full list of DNS records to be configured.
@@ -114,7 +114,7 @@ Confirm docker works with `docker run hello-world`.
 
 ## Buy a domain and configure nameservers to DO
 
-In this example, we are using audubon.app with [nameservers pointing to Digital Ocean](https://docs.digitalocean.com/products/networking/dns/getting-started/dns-registrars/). You'll need to do the same. Integration with other providers is possible and encouraged, but requires know-how and research. Later, we'll need a Digital Ocean Access Token added to the ansible-vault.
+In this example, we are using laconic.com with [nameservers pointing to Digital Ocean](https://docs.digitalocean.com/products/networking/dns/getting-started/dns-registrars/). You'll need to do the same. Integration with other providers is possible and encouraged, but requires know-how and research. Later, we'll need a Digital Ocean Access Token added to the ansible-vault.
 
 ## Configure DNS
 
@@ -124,19 +124,19 @@ Like this:
 
 |  Type  |            Hostname                |            Value                    |
 |--------|------------------------------------|-------------------------------------|
-| A      | lx-daemon.audubon.app              | 23.111.69.218                       |
-| A      | lx-cad-cluster-control.audubon.app | 23.111.78.179                       |
-| NS     | audubon.app                        | ns1.digitalocean.com.               |
-| NS     | audubon.app                        | ns2.digitalocean.com.               |
-| NS     | audubon.app                        | ns3.digitalocean.com.               |
-| CNAME  | www.audubon.app                    | audubon.app.                        |
-| CNAME  | laconicd.audubon.app               | lx-daemon.audubon.app.              |
-| CNAME  | lx-backend.audubon.app             | lx-daemon.audubon.app.              |
-| CNAME  | lx-console.audubon.app             | lx-daemon.audubon.app.              |
-| CNAME  | lx-cad.audubon.app                 | lx-cad-cluster-control.audubon.app. |
-| CNAME  | *.lx-cad.audubon.app               | lx-cad-cluster-control.audubon.app. |
-| CNAME  | pwa.audubon.app                    | lx-cad-cluster-control.audubon.app. |
-| CNAME  | *.pwa.audubon.app                  | lx-cad-cluster-control.audubon.app. |
+| A      | lcn-daemon.laconic.com              | 23.111.69.218                       |
+| A      | lcn-cad-cluster-control.laconic.com | 23.111.78.179                       |
+| NS     | laconic.com                        | ns1.digitalocean.com.               |
+| NS     | laconic.com                        | ns2.digitalocean.com.               |
+| NS     | laconic.com                        | ns3.digitalocean.com.               |
+| CNAME  | www.laconic.com                    | laconic.com.                        |
+| CNAME  | laconicd.laconic.com               | lcn-daemon.laconic.com.              |
+| CNAME  | lcn-backend.laconic.com             | lcn-daemon.laconic.com.              |
+| CNAME  | lcn-console.laconic.com             | lcn-daemon.laconic.com.              |
+| CNAME  | lcn-cad.laconic.com                 | lcn-cad-cluster-control.laconic.com. |
+| CNAME  | *.lcn-cad.laconic.com               | lcn-cad-cluster-control.laconic.com. |
+| CNAME  | pwa.laconic.com                    | lcn-cad-cluster-control.laconic.com. |
+| CNAME  | *.pwa.laconic.com                  | lcn-cad-cluster-control.laconic.com. |
 
 
 ## Use ansible to setup a k8s cluster
@@ -194,7 +194,7 @@ which provides an output like:
 ---------
 sec   rsa4096/0AFB10B643944C22 2024-05-03 [SC] [expires: 2025-05-03]
       17B3248D6784EC6CB43365A60AFB10B643944C22
-uid                 [ultimate] user <hello@audubon.app>
+uid                 [ultimate] user <hello@laconic.com>
 ```
 
 and replace the other keys with `0AFB10B643944C22` in the `.vault/vault-keys` file.
@@ -221,7 +221,7 @@ sudo ./roles/k8s/files/scripts/get-kube-tools.sh
  a) `group_vars/all/vault.yml` will look like:
 ```
 ---
-support_email: hello@audubon.app
+support_email: hello@laconic.com
 ```
  b) `files/manifests/secret-digitalocean-dns.yaml` will look like:
 ```
@@ -238,12 +238,12 @@ metadata:
   name: digitalocean-dns
   namespace: cert-manager
 ```
- c) `./group_vars/lx_cad/k8s-vault.yml` which is created in the next step and looks like:
+ c) `./group_vars/lcn_cad/k8s-vault.yml` which is created in the next step and looks like:
 ```
 ---
 k8s_cluster_token: f63c34881f3d7fbd30229db4c92d902b
 
-# note: delete this file; it will be re-created when running `./roles/k8s/files/token-vault.sh ./group_vars/lx_cad/k8s-vault.yml`
+# note: delete this file; it will be re-created when running `./roles/k8s/files/token-vault.sh ./group_vars/lcn_cad/k8s-vault.yml`
 ```
 
 With `ansible-vault`, files are encrypted like so:
@@ -262,13 +262,13 @@ You can add additional PGP key IDs to the `.vault/vault-keys` file and re-key th
 
 8. Generate token for the cluster
 
-As mentioned, `rm ./group_vars/lx_cad/k8s-vault.yml` then
+As mentioned, `rm ./group_vars/lcn_cad/k8s-vault.yml` then
 
 ```
-./roles/k8s/files/scripts/token-vault.sh ./group_vars/lx_cad/k8s-vault.yml
+./roles/k8s/files/scripts/token-vault.sh ./group_vars/lcn_cad/k8s-vault.yml
 ```
 
-Note: `lx_cad` should be changed to a different name used for your service provider deployment.
+Note: `lcn_cad` should be changed to a different name used for your service provider deployment.
 
 9. Configure firewalld and nginx for hosts
 
@@ -289,7 +289,7 @@ Enter the `so` user password again.
 This step creates the cluster and puts the `kubeconfig.yml` at on your local machine here: `~/.kube/config-default.yaml`. You'll need it for later.
 
 ```
-ansible-playbook -i hosts site.yml --tags=k8s --limit=lx_cad --user so -K
+ansible-playbook -i hosts site.yml --tags=k8s --limit=lcn_cad --user so -K
 ```
 Enter the `so` user password again.
 
@@ -336,7 +336,7 @@ letsencrypt-prod-wild   True    4m8s
 kubectl get certificates
 
 NAME                       READY   SECRET                     AGE
-pwa.audubon.app            True    pwa.audubon.app            4m31s
+pwa.laconic.com            True    pwa.laconic.com            4m31s
 ```
 
 ```
@@ -367,7 +367,7 @@ network:
     registry:
      - '5000'
   http-proxy:
-    - host-name: container-registry.pwa.audubon.app
+    - host-name: container-registry.pwa.laconic.com
       routes:
         - path: '/'
           proxy-to: registry:5000
@@ -418,7 +418,7 @@ using these credentials, create a `container-registry/my_password.json` that loo
 ```
 {
   "auths": {
-    "container-registry.pwa.audubon.app": {
+    "container-registry.pwa.laconic.com": {
       "username": "so-reg-user",
       "password": "$2y$05$Eds.WkuUgn6XFUL8/NKSt.JTX.gCuXRGQFyJaRit9HhrUTsVrhH.W",
       "auth": "c28tcmVnLXVzZXI6cFhEd081ekxVN004OHgzYUE="
@@ -451,7 +451,7 @@ laconic-so deployment --dir container-registry logs
 Confirm deployment by loggin in:
 
 ```
-docker login container-registry.pwa.audubon.app --username so-reg-user --password pXDwO5zLU7M88x3aA
+docker login container-registry.pwa.laconic.com --username so-reg-user --password pXDwO5zLU7M88x3aA
 ```
 
 All this htpasswd configuration will enable the deployer (below) to build and push images to this docker registry (which is hosted on your k8s cluster).
@@ -501,13 +501,13 @@ Modify `webapp-deployer.spec`:
 stack: webapp-deployer-backend
 deploy-to: k8s
 kube-config: /home/so/.kube/config-default.yaml
-image-registry: container-registry.pwa.audubon.app/laconic-registry
+image-registry: container-registry.pwa.laconic.com/laconic-registry
 network:
   ports:
     server:
      - '9555'
   http-proxy:
-    - host-name: webapp-deployer-api.pwa.audubon.app
+    - host-name: webapp-deployer-api.pwa.laconic.com
       routes:
         - path: '/'
           proxy-to: server:9555
@@ -543,13 +543,13 @@ laconic-so --stack webapp-deployer-backend deploy create --deployment-dir webapp
 Modify the contents of `webapp-deployer/config.env`:
 
 ```
-DEPLOYMENT_DNS_SUFFIX="pwa.audubon.app"
+DEPLOYMENT_DNS_SUFFIX="pwa.laconic.com"
 
 # this should match the name authority reserved above
 DEPLOYMENT_RECORD_NAMESPACE="mito"
 
 # url of the deployed docker image registry
-IMAGE_REGISTRY="container-registry.pwa.audubon.app"
+IMAGE_REGISTRY="container-registry.pwa.laconic.com"
 
 # credentials from the htpasswd section above
 IMAGE_REGISTRY_USER="so-reg-user"
@@ -576,8 +576,8 @@ The latter looks like:
 ```
 services:
   registry:
-    rpcEndpoint: 'https://lx-daemon.audubon.app:26657'
-    gqlEndpoint: 'https://lx-daemon.audubon.app:9473/api'
+    rpcEndpoint: 'https://lcn-daemon.laconic.com:26657'
+    gqlEndpoint: 'https://lcn-daemon.laconic.com:9473/api'
     userKey: e64ae9d07b21c62081b3d6d48e78bf44275ffe0575f788ea7b36f71ea559724b
     bondId: ad9c977f4a641c2cf26ce37dcc9d9eb95325e9f317aee6c9f33388cdd8f2abb8
     chainId: laconic_9000-1
@@ -603,7 +603,7 @@ laconic-so build-webapp --source-repo ~/cerc/webapp-deployment-status-ui
 ```
 explain
 ```
-laconic-so deploy-webapp create --kube-config /home/so/.kube/config-default.yaml --image-registry container-registry.pwa.audubon.app --deployment-dir webapp-ui --image cerc/webapp-deployment-status-ui:local --url https://webapp-deployer-ui.pwa.audubon.app --env-file ~/cerc/webcerc/webapp-deployment-status-ui/.env
+laconic-so deploy-webapp create --kube-config /home/so/.kube/config-default.yaml --image-registry container-registry.pwa.laconic.com --deployment-dir webapp-ui --image cerc/webapp-deployment-status-ui:local --url https://webapp-deployer-ui.pwa.laconic.com --env-file ~/cerc/webcerc/webapp-deployment-status-ui/.env
 ```
 explain
 ```
@@ -611,17 +611,17 @@ laconic-so deployment --dir webapp-ui push-images
 laconic-so deployment --dir webapp-ui start
 ```
 
-Now view https://webapp-deployer-ui.pwa.audubon.app for the status and logs of each deployment
+Now view https://webapp-deployer-ui.pwa.laconic.com for the status and logs of each deployment
 
 ## Result
 
 We now have:
 
-- https://lx-console.audubon.app displays registry records (webapp deployments)
-- https://container-registry.pwa.audubon.app hosts docker images used by webapp deployments
-- https://webapp-deployer-api.pwa.audubon.app listens for ApplicationDeploymentRequest and runs `laconic-so deploy-webapp-from-registry` behind the scenes
-- https://webapp-deployer-ui.pwa.audubon.app displays status and logs for webapps deployed via the Laconic Registry
-- https://my-test-app.pwa.audubon.app as an example webapp deployment (but not deployed via the registry)
+- https://lcn-console.laconic.com displays registry records (webapp deployments)
+- https://container-registry.pwa.laconic.com hosts docker images used by webapp deployments
+- https://webapp-deployer-api.pwa.laconic.com listens for ApplicationDeploymentRequest and runs `laconic-so deploy-webapp-from-registry` behind the scenes
+- https://webapp-deployer-ui.pwa.laconic.com displays status and logs for webapps deployed via the Laconic Registry
+- https://my-test-app.pwa.laconic.com as an example webapp deployment (but not deployed via the registry)
 
 Let's take a look at how to configure CI/CD workflow to deploy webapps via from the registry.
 
@@ -803,4 +803,4 @@ Now, anytime a release is created, a new set of records will be published to the
 
 ## Notes, debugging, unknowns
 
-- using `container-registry.pwa.audubon.app/laconic-registry` or `container-registry.pwa.audubon.app` seems to both work, TODO, investigate
+- using `container-registry.pwa.laconic.com/laconic-registry` or `container-registry.pwa.laconic.com` seems to both work, TODO, investigate
