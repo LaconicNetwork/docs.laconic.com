@@ -606,25 +606,47 @@ laconic-so deployment --dir webapp-deployer start
 
 Now, publishing records to the Laconic Registry will trigger deployments. See below for more details.
 
-### Deploy deployer UI
+## Deploy front end
 
-To view the status and logs of deployments, we can deploy the UI
+1. Clone and build the UI
 
 ```
-git clone git@git.vdb.to:cerc-io/webapp-deployment-status-ui.git ~/cerc/webcerc/webapp-deployment-status-ui
+git clone https://git.vdb.to/cerc-io/webapp-deployment-status-ui.git ~/cerc/webapp-deployment-status-ui
 laconic-so build-webapp --source-repo ~/cerc/webapp-deployment-status-ui
 ```
-explain
+
+2. Create a deployment
+
 ```
-laconic-so deploy-webapp create --kube-config /home/so/.kube/config-default.yaml --image-registry container-registry.pwa.laconic.com --deployment-dir webapp-ui --image cerc/webapp-deployment-status-ui:local --url https://webapp-deployer-ui.pwa.laconic.com --env-file ~/cerc/webcerc/webapp-deployment-status-ui/.env
+laconic-so deploy-webapp create --kube-config /root/.kube/config-default.yaml --image-registry container-registry.pwa.laconic.com --deployment-dir webapp-ui --image cerc/webapp-deployment-status-ui:local --url https://webapp-deployer-ui.pwa.laconic.com --env-file ~/cerc/webapp-deployment-status-ui/.env
 ```
-explain
+
+3. Push the image and start the service
 ```
 laconic-so deployment --dir webapp-ui push-images
 laconic-so deployment --dir webapp-ui start
 ```
 
-Now view https://webapp-deployer-ui.pwa.laconic.com for the status and logs of each deployment
+4. Wait a moment then view https://webapp-deployer-ui.pwa.laconic.com for the status and logs of each deployment.
+
+
+## Deploy a test webapp
+
+1. Fork this repo: https://git.vdb.to/cerc-io/test-progressive-web-app
+
+2. Review this file: `.gitea/workflows/publish.yaml`. Change to `.github` if that's where your fork is.
+
+3. Update both `scripts/publish-app-record.sh` and `scripts/request-app-deployment.sh` with relevant endpoints (or set envs).
+
+4. Update `package.json` fields: `"name": "@my-org-name/app-name` and `"repository": "url_to_your_fork_must_be_public"`
+
+5. Add the envs referenced in `.gitea/workflows/publish.yaml`, i.e., for `privKey` and `bondId` as Secrets in Gitea/GitHub Actions.
+
+Now, anytime a release is created, a new set of records will be published to the Laconic Registry, and eventually picked up by the `deployer`, which will target the k8s cluster that was setup.
+
+**Note:** to override the default webapp build process, put a file named `build-webapp.sh` in the root of the repo.
+
+
 
 ## Result
 
@@ -634,186 +656,7 @@ We now have:
 - https://container-registry.pwa.laconic.com hosts docker images used by webapp deployments
 - https://webapp-deployer-api.pwa.laconic.com listens for ApplicationDeploymentRequest and runs `laconic-so deploy-webapp-from-registry` behind the scenes
 - https://webapp-deployer-ui.pwa.laconic.com displays status and logs for webapps deployed via the Laconic Registry
-- https://my-test-app.pwa.laconic.com as an example webapp deployment (but not deployed via the registry)
 
 Let's take a look at how to configure CI/CD workflow to deploy webapps via from the registry.
 
-## Publishing webapps
 
-1. Create a `.gitea/workflows/publish.yml` that looks like:
-
-```
-name: Publish ApplicationRecord to Registry
-on:
-  release:
-    types: [published]
-
-env:
-  CERC_REGISTRY_USER_KEY: ${{ secrets.CICD_LACONIC_USER_KEY }}
-  CERC_REGISTRY_BOND_ID: ${{ secrets.CICD_LACONIC_BOND_ID }}
-
-jobs:
-  cns_publish:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Clone project repository"
-        uses: actions/checkout@v3
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: "Enable Yarn"
-        run: corepack enable
-      - name: "Install registry CLI"
-        run: |
-          npm config set @cerc-io:registry https://git.vdb.to/api/packages/cerc-io/npm/
-          npm install -g @cerc-io/laconic-registry-cli          
-      - name: "Install jq"
-        run: apt -y update && apt -y install jq
-      - name: "Publish Application Record"
-        run: scripts/publish-app-record.sh
-      - name: "Request Deployment"
-        run: scripts/request-app-deployment.sh
-```
-and set the `envs` using the `userKey` and `bondId` that were previously created.
-
-2. Add two scripts that each look like:
-```
-#!/bin/bash
-
-# scripts/publish-app-record.sh
-set -e
-
-RECORD_FILE=tmp.rf.$$
-CONFIG_FILE=`mktemp`
-
-CERC_APP_TYPE=${CERC_APP_TYPE:-"webapp/next"}
-CERC_REPO_REF=${CERC_REPO_REF:-${GITHUB_SHA:-`git log -1 --format="%H"`}}
-CERC_IS_LATEST_RELEASE=${CERC_IS_LATEST_RELEASE:-"true"}
-
-rcd_name=$(jq -r '.name' package.json | sed 's/null//')
-rcd_desc=$(jq -r '.description' package.json | sed 's/null//')
-rcd_repository=$(jq -r '.repository' package.json | sed 's/null//')
-rcd_homepage=$(jq -r '.homepage' package.json | sed 's/null//')
-rcd_license=$(jq -r '.license' package.json | sed 's/null//')
-rcd_author=$(jq -r '.author' package.json | sed 's/null//')
-rcd_app_version=$(jq -r '.version' package.json | sed 's/null//')
-
-cat <<EOF > "$CONFIG_FILE"
-services:
-  cns:
-    restEndpoint: '${CERC_REGISTRY_REST_ENDPOINT:-http://console.laconic.com:1317}'
-    gqlEndpoint: '${CERC_REGISTRY_GQL_ENDPOINT:-http://console.laconic.com:9473/api}'
-    chainId: ${CERC_REGISTRY_CHAIN_ID:-laconic_9000-1}
-    gas: 950000
-    fees: 200000aphoton
-EOF
-
-next_ver=$(laconic -c $CONFIG_FILE cns record list --type ApplicationRecord --all --name "$rcd_name" 2>/dev/null | jq -r -s ".[] | sort_by(.createTime) | reverse | [ .[] | select(.bondId == \"$CERC_REGISTRY_BOND_ID\") ] | .[0].attributes.version" | awk -F. -v OFS=. '{$NF += 1 ; print}')
-
-if [ -z "$next_ver" ] || [ "1" == "$next_ver" ]; then
-  next_ver=0.0.1
-fi
-
-cat <<EOF | sed '/.*: ""$/d' > "$RECORD_FILE"
-record:
-  type: ApplicationRecord
-  version: ${next_ver}
-  name: "$rcd_name"
-  description: "$rcd_desc"
-  homepage: "$rcd_homepage"
-  license: "$rcd_license"
-  author: "$rcd_author"
-  repository:
-    - "$rcd_repository"
-  repository_ref: "$CERC_REPO_REF"
-  app_version: "$rcd_app_version"
-  app_type: "$CERC_APP_TYPE"
-EOF
-
-
-cat $RECORD_FILE
-RECORD_ID=$(laconic -c $CONFIG_FILE cns record publish --filename $RECORD_FILE --user-key "${CERC_REGISTRY_USER_KEY}" --bond-id ${CERC_REGISTRY_BOND_ID} | jq -r '.id')
-echo $RECORD_ID
-
-if [ -z "$CERC_REGISTRY_APP_CRN" ]; then
-  authority=$(echo "$rcd_name" | cut -d'/' -f1 | sed 's/@//')
-  app=$(echo "$rcd_name" | cut -d'/' -f2-)
-  CERC_REGISTRY_APP_CRN="crn://$authority/applications/$app"
-fi
-
-laconic -c $CONFIG_FILE cns name set --user-key "${CERC_REGISTRY_USER_KEY}" --bond-id ${CERC_REGISTRY_BOND_ID} "$CERC_REGISTRY_APP_CRN@${rcd_app_version}" "$RECORD_ID"
-laconic -c $CONFIG_FILE cns name set --user-key "${CERC_REGISTRY_USER_KEY}" --bond-id ${CERC_REGISTRY_BOND_ID} "$CERC_REGISTRY_APP_CRN@${CERC_REPO_REF}" "$RECORD_ID"
-if [ "true" == "$CERC_IS_LATEST_RELEASE" ]; then
-  laconic -c $CONFIG_FILE cns name set --user-key "${CERC_REGISTRY_USER_KEY}" --bond-id ${CERC_REGISTRY_BOND_ID} "$CERC_REGISTRY_APP_CRN" "$RECORD_ID"
-fi
-
-rm -f $RECORD_FILE $CONFIG_FILE
-```
-and
-```
-#!/bin/bash
-
-set -e
-
-RECORD_FILE=tmp.rf.$$
-CONFIG_FILE=`mktemp`
-
-rcd_name=$(jq -r '.name' package.json | sed 's/null//' | sed 's/^@//')
-rcd_app_version=$(jq -r '.version' package.json | sed 's/null//')
-
-cat <<EOF > "$CONFIG_FILE"
-services:
-  cns:
-    restEndpoint: '${CERC_REGISTRY_REST_ENDPOINT:-http://console.laconic.com:1317}'
-    gqlEndpoint: '${CERC_REGISTRY_GQL_ENDPOINT:-http://console.laconic.com:9473/api}'
-    chainId: ${CERC_REGISTRY_CHAIN_ID:-laconic_9000-1}
-    gas: 950000
-    fees: 200000aphoton
-EOF
-
-if [ -z "$CERC_REGISTRY_APP_CRN" ]; then
-  authority=$(echo "$rcd_name" | cut -d'/' -f1 | sed 's/@//')
-  app=$(echo "$rcd_name" | cut -d'/' -f2-)
-  CERC_REGISTRY_APP_CRN="crn://$authority/applications/$app"
-fi
-
-APP_RECORD=$(laconic -c $CONFIG_FILE cns name resolve "$CERC_REGISTRY_APP_CRN" | jq '.[0]')
-if [ -z "$APP_RECORD" ] || [ "null" == "$APP_RECORD" ]; then
-  echo "No record found for $CERC_REGISTRY_APP_CRN."
-  exit 1
-fi
-
-cat <<EOF | sed '/.*: ""$/d' > "$RECORD_FILE"
-record:
-  type: ApplicationDeploymentRequest
-  version: 1.0.0
-  name: "$rcd_name@$rcd_app_version"
-  application: "$CERC_REGISTRY_APP_CRN@$rcd_app_version"
-  dns: "$CERC_REGISTRY_DEPLOYMENT_SHORT_HOSTNAME"
-  deployment: "$CERC_REGISTRY_DEPLOYMENT_CRN"
-  config:
-    env:
-      CERC_WEBAPP_DEBUG: "$rcd_app_version"
-  meta:
-    note: "Added by CI @ `date`"
-    repository: "`git remote get-url origin`"
-    repository_ref: "${GITHUB_SHA:-`git log -1 --format="%H"`}"
-EOF
-
-cat $RECORD_FILE
-RECORD_ID=$(laconic -c $CONFIG_FILE cns record publish --filename $RECORD_FILE --user-key "${CERC_REGISTRY_USER_KEY}" --bond-id ${CERC_REGISTRY_BOND_ID} | jq -r '.id')
-echo $RECORD_ID
-
-rm -f $RECORD_FILE $CONFIG_FILE
-```
-
-4. Update `package.json` --> `@my-org-name/app-name`
-
-Now, anytime a release is created, a new set of records will be published to the Laconic Registry, and eventually picked up by the `deployer`, which will target the k8s cluster that was setup.
-
-**Note:** to override stack orchestrator's default webapp build process, put a file named `build-webapp.sh` in the root of your webapp repo.
-
-## Notes, debugging, unknowns
-
-- using `container-registry.pwa.laconic.com/laconic-registry` or `container-registry.pwa.laconic.com` seems to both work, TODO, investigate
