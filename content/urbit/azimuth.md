@@ -9,7 +9,7 @@ Azimuth is the public-key infrastructure used for Urbit identities, deployed as 
 
 It currently [relies on events from Infura](https://developers.urbit.org/reference/azimuth/flow#eth-watcher) (e.g., via eth-mainnet.urbit.org), as seen in this diagram:
 
-![urbit-infura](/images/roller-agents.png)
+![urbit-infura](../images/roller-agents.png)
 
 Ideally, this core component of the Urbit stack would not rely on centralized entities. Additionally, events are not verifiable, which defeats the purpose of certain applications that rely on them.
 
